@@ -12,6 +12,8 @@ const rItems = (data) => rPages.filter((entry) => entry.data === data)
   .map((entry) => ({ text: entry.page, link: `/r/reference/${entry.page}` }));
 const rSidebar = [
   { text: "R package", items: [
+    { text: "Installation", link: "/getting-started?lang=r#installation" },
+    { text: "Shiny", link: "/getting-started?lang=r#shiny" },
     { text: "Reference", link: "/r/reference/" },
     { text: "Changelog", link: "/r/news" },
   ] },
@@ -23,7 +25,7 @@ const guide = (text, hash) => ({ text, link: `/getting-started#${hash}` });
 
 export default defineConfig({
   title: "geneviewer",
-  description: "The JavaScript library for interactive gene cluster, transcript and genome alignment charts",
+  description: "Interactive gene cluster, transcript and genome alignment charts for JavaScript and R",
   base,
   outDir: "../_site",
   appearance: "force-auto",
@@ -31,6 +33,16 @@ export default defineConfig({
   sitemap: { hostname: "https://nvelden.github.io/geneviewer-docs/" },
   head: [
     ["link", { rel: "icon", href: `${base}favicon.ico` }],
+    // The language before the page is drawn, so its text does not change on screen.
+    // ?lang=r in a link sets it and is remembered.
+    ["script", {}, `(function () {
+      var wanted = new URLSearchParams(location.search).get("lang"), saved = null;
+      try {
+        saved = localStorage.getItem("geneviewer-language");
+        if (wanted === "js" || wanted === "r") localStorage.setItem("geneviewer-language", wanted);
+      } catch (e) {}
+      document.documentElement.dataset.lang = wanted === "js" || wanted === "r" ? wanted : saved === "r" ? "r" : "js";
+    })();`],
   ],
   markdown: {
     config(md) {

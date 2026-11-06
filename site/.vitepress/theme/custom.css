@@ -108,3 +108,9 @@
   font-family: inherit;
   font-size: inherit;
 }
+
+/* The text of one language (see language.js). Without a choice, JavaScript. */
+html:not([data-lang="r"]) .lang-r,
+html[data-lang="r"] .lang-js {
+  display: none;
+}

@@ -191,6 +191,50 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       await page.close();
     }
     // The API reference lists every option of every component
+    // The language switch: the text, the code tabs and "On this page" follow it,
+    // and it is remembered
+    {
+      const context = await browser.newContext({ viewport: { width: 1280, height: 800 } });
+      const lang = await context.newPage();
+      const shown = (text) => lang.locator(`.vp-doc code:visible`, { hasText: text }).count();
+      const activeTabs = () => lang.locator(".vp-code-group").evaluateAll((groups) => {
+        const names = {};
+        groups.forEach((group) => {
+          const input = group.querySelector("input:checked");
+          const name = input && group.querySelector(`label[for="${CSS.escape(input.id)}"]`).textContent.trim();
+          names[name] = (names[name] ?? 0) + 1;
+        });
+        return names;
+      });
+      const outline = (text) => lang.locator(".VPDocAsideOutline a:visible", { hasText: text }).count();
+      await lang.goto(`${base}getting-started`, { waitUntil: "networkidle" });
+      expect(await shown("preventGeneOverlap") > 0 && await shown("prevent_gene_overlap") === 0, "language: JavaScript by default");
+      expect(await outline("Shiny") === 0, "language: Shiny is not in the outline for JavaScript");
+      const heading = lang.locator("#zoom");
+      await heading.scrollIntoViewIfNeeded();
+      const before = (await heading.boundingBox()).y;
+      await lang.locator(".gv-language button", { hasText: /^R$/ }).first().click();
+      await lang.waitForTimeout(300);
+      expect(Math.abs((await heading.boundingBox()).y - before) < 5, "language: the page stays at the same place");
+      expect(await shown("prevent_gene_overlap") > 0 && await shown("preventGeneOverlap") === 0, "language: the text shows the R names");
+      const tabsR = await activeTabs();
+      expect(tabsR.R > 50 && !tabsR.JavaScript, `language: every code tab shows R (${JSON.stringify(tabsR)})`);
+      expect(await outline("Shiny") === 1, "language: Shiny is in the outline for R");
+      await lang.reload({ waitUntil: "networkidle" });
+      expect(await shown("prevent_gene_overlap") > 0 && (await activeTabs()).R > 50, "language: remembered after a reload");
+      const jsTab = lang.locator(".vp-code-group .tabs label", { hasText: /^JavaScript$/ }).first();
+      await jsTab.scrollIntoViewIfNeeded();
+      await jsTab.click();
+      await lang.waitForTimeout(300);
+      const tabsJs = await activeTabs();
+      expect(!tabsJs.R && await shown("preventGeneOverlap") > 0, `language: a code tab changes the whole page (${JSON.stringify(tabsJs)})`);
+      await lang.goto(`${base}getting-started?lang=r#shiny`, { waitUntil: "networkidle" });
+      await lang.waitForTimeout(300);
+      const shiny = await lang.locator("#shiny").boundingBox();
+      expect(!!shiny && shiny.y >= 0 && shiny.y < 800, "language: a link can set it and go to an R section");
+      await context.close();
+    }
+
     const schema = JSON.parse(fs.readFileSync(path.join(__dirname, "..", ".sources", "geneviewer-js", "schema", "spec-v1.schema.json"), "utf8"));
     const page = await browser.newPage();
     const errors = [];

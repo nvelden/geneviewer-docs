@@ -1,10 +1,10 @@
 ---
 layout: home
-titleTemplate: "The JavaScript library for interactive gene cluster charts"
+titleTemplate: "Interactive gene cluster charts for JavaScript and R"
 
 hero:
   name: "geneviewer"
-  text: "The JavaScript library for interactive gene cluster charts"
+  text: "Interactive gene cluster charts for JavaScript and R"
   tagline: Draw gene clusters, transcripts and genome alignments in the browser with D3
   image:
     src: /logo.png
@@ -44,8 +44,8 @@ features:
     link: /getting-started#events
   - title: The geneviewer R package
     details: Reads GenBank, GFF, FASTA and BED files, aligns proteins and genomes, and builds these charts from data frames.
-    link: https://nvelden.github.io/geneviewer/
-    linkText: Visit the R package
+    link: /r/reference/
+    linkText: R reference
   - title: Gene Cluster Dashboard
     details: Load CSV, GenBank and FASTA files and design a chart by point and click. It runs entirely in your browser.
     link: https://nvelden.github.io/geneviewer-shinylive/

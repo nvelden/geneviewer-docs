@@ -158,9 +158,17 @@ function tablesMarkdown() {
     "```";
 }
 
+// Text that differs by language, in a sentence: [[JavaScript||R]]. Either can be
+// empty, and it can hold Markdown. Run first, so that it works in tables, and
+// so that it leaves the code of the charts alone.
+function languageText(source) {
+  return source.replace(/\[\[(.*?)\|\|(.*?)\]\]/g,
+    (_, js, r) => `<span class="lang-js">${js}</span><span class="lang-r">${r}</span>`);
+}
+
 /** Replace the markers in a page's source. */
 export function expand(source) {
-  return source
+  return languageText(source)
     .replace(/^@chart ([\w-]+)((?: \w+)*)$/gm, (_, id, flags) => chartMarkdown(id, flags.trim().split(" ")))
     .replace(/^@tables$/m, () => tablesMarkdown())
     .replace(/^@examples$/m, () => examplesMarkdown())

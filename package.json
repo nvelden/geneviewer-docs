@@ -10,7 +10,7 @@
     "build": "npm run -s prepare-site && vitepress build site",
     "dev": "npm run -s prepare-site && vitepress dev site --host 127.0.0.1 --port 8484",
     "preview": "vitepress preview site --host 127.0.0.1 --port 8484",
-    "test": "node test/site.cjs",
+    "test": "node test/guide-names.mjs && node test/site.cjs",
     "gallery": "node scripts/site-gallery.mjs"
   },
   "dependencies": {
