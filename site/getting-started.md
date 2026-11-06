@@ -528,43 +528,43 @@ Labels that overlap another label are turned by default. [[`adjustLabels: "hide"
 
 ## Annotations
 
-[[The `annotation` key||`GC_annotation()`]] adds annotations to clusters: `text`, `textMarker`, `line`, `arrow`, `symbol`, `rectangle`, `arc`, `promoter` and `terminator`. Several annotations of one type can be placed with arrays of values. With [[`trackMouse: {}`||`GC_trackMouse()`]] the chart shows the position under the mouse, which makes it easier to find `x` and `y`.
+[[The `annotation` key||`GC_annotation()`]] adds annotations to clusters: `text`, `textMarker`, `line`, `arrow`, `symbol`, `rectangle`, `arc`, `promoter` and `terminator`. Several annotations of one type can be placed with [[arrays||lists]] of values. With [[`trackMouse: {}`||`GC_trackMouse()`]] the chart shows the position under the mouse, which makes it easier to find `x` and `y`.
 
 @chart guide-annotations
 
 ### Text
 
-All the options of a text annotation. `text`, `x` and `y` can also be arrays.
+All the options of a text annotation. `text`, `x` and `y` can also be [[arrays||lists]].
 
 @chart guide-text
 
 ### Text marker
 
-All the options of a text marker. All but the styles can also be arrays. `x1` and `x2` are unset by default, and `position` is used for the horizontal placement.
+All the options of a text marker. All but the styles can also be [[arrays||lists]]. `x1` and `x2` are unset by default, and `position` is used for the horizontal placement.
 
 @chart guide-text-marker
 
 ### Promoter and terminator
 
-All the options of a promoter, or a terminator with [[`type: "terminator"`||`type = "terminator"`]]. All but the styles can also be arrays.
+All the options of a promoter, or a terminator with [[`type: "terminator"`||`type = "terminator"`]]. All but the styles can also be [[arrays||lists]].
 
 @chart guide-promoter-terminator
 
 ### Symbol
 
-All the options of a symbol: `circle`, `cross`, `diamond`, `square`, `star`, `triangle` or `wye`. All but the styles can also be arrays.
+All the options of a symbol: `circle`, `cross`, `diamond`, `square`, `star`, `triangle` or `wye`. All but the styles can also be [[arrays||lists]].
 
 @chart guide-symbol
 
 ### Arrow
 
-All the options of an arrow. All but the styles can also be arrays.
+All the options of an arrow. All but the styles can also be [[arrays||lists]].
 
 @chart guide-arrow
 
 ### Line
 
-All the options of a line. All but the styles can also be arrays.
+All the options of a line. All but the styles can also be [[arrays||lists]].
 
 @chart guide-line
 
@@ -576,7 +576,7 @@ All the options of arcs, here for the junctions of a transcript.
 
 ### Rectangle
 
-All the options of a rectangle. `rotation` can also be an array.
+All the options of a rectangle. `rotation` can also be [[an array||a list]].
 
 @chart guide-square
 
