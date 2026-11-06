@@ -61,25 +61,68 @@ chart
 
 ## UniProt keywords
 
-We can get additional information for each gene using the `UniProt.ws` package. We make the connection to the database using the `UniProt.ws` function. Using `keytypes(up)` we can see all the keys we can use to query the database and with `columns(up)` we can see all the different fields we can get in return. Our gene IDs are EMBL-GenBank-DDBJ_CDS identifiers. For this tutorial we want to return the keywords associated with each gene such that we can use them to group the genes based on their function.
+We can get additional information for each gene from [UniProt](https://www.uniprot.org) with its [ID mapping service](https://www.uniprot.org/help/id_mapping). Our gene IDs are EMBL-GenBank-DDBJ_CDS identifiers. For this tutorial we want to return the keywords associated with each gene such that we can use them to group the genes based on their function. We use the `httr2` package to submit the IDs, wait for the job to finish and download the result.
 
 ```r
-library(UniProt.ws)
+# install.packages(c("httr2", "tidyr"))
+library(httr2)
 
-up <- UniProt.ws::UniProt.ws()
+# All requests go through this function. UniProt compresses its results twice
+# when a client asks for exactly "gzip", which is what R does by default, and R
+# then cannot read them, so we ask for them uncompressed. On a 429 or 503 the
+# request waits as long as UniProt's Retry-After header asks, up to 3 tries.
+uniprot_request <- function(path) {
+  request(paste0("https://rest.uniprot.org/idmapping/", path)) %>%
+    req_user_agent("geneviewer-article (https://github.com/nvelden/geneviewer)") %>%
+    req_headers(`Accept-Encoding` = "identity") %>%
+    req_timeout(120) %>%
+    req_retry(max_tries = 3, after = function(resp) {
+      wait <- resp_retry_after(resp)
+      if (isTRUE(wait > 300)) {
+        stop("UniProt asks to wait ", wait, " seconds. Try again later.", call. = FALSE)
+      }
+      wait
+    })
+}
 
-keytypes(up)
-columns(up)
+# Submit the IDs
+job <- uniprot_request("run") %>%
+  req_body_form(
+    from = "EMBL-GenBank-DDBJ_CDS",
+    to = "UniProtKB",
+    ids = paste(fasta_df$protein_id, collapse = ",")
+  ) %>%
+  req_perform() %>%
+  resp_body_json()
 
-keywords <- UniProt.ws::select(
-  up, 
-  column = c("keyword"), 
-  keys = fasta_df$protein_id, 
-  keytype = "EMBL-GenBank-DDBJ_CDS"
-  )
+# Wait for the job. A finished job answers with a redirect (303) to its results.
+finished <- FALSE
+for (attempt in 1:20) {
+  status <- uniprot_request(paste0("status/", job$jobId)) %>%
+    req_options(followlocation = FALSE) %>%
+    req_perform()
+  if (resp_status(status) == 303) {
+    finished <- TRUE
+    break
+  }
+  job_status <- resp_body_json(status)$jobStatus
+  if (!isTRUE(job_status %in% c("NEW", "RUNNING"))) {
+    stop("UniProt job ", job$jobId, " stopped with status: ", job_status, call. = FALSE)
+  }
+  Sys.sleep(5)
+}
+if (!finished) {
+  stop("UniProt job ", job$jobId, " did not finish in time. Try again later.", call. = FALSE)
+}
+
+# Download the accession and keywords of each match
+results <- uniprot_request(paste0("uniprotkb/results/stream/", job$jobId)) %>%
+  req_url_query(fields = "accession,keyword", format = "tsv") %>%
+  req_perform()
+keywords <- read.delim(text = resp_body_string(results), na.strings = "")
 ```
 
-This will return a data.frame with our original identifiers, UniProt IDs and the keywords associated with each gene.
+This will return a data.frame with our original identifiers, UniProt IDs and the keywords associated with each gene. UniProt only returns the genes that have an active UniProtKB entry, here 113 of the 132. The 19 genes of cluster BGC0001709 have none, so they end up in the Other group below.
 
 |From       |Entry  |Keywords                                                                                                     |
 |:----------|:------|:------------------------------------------------------------------------------------------------------------|
