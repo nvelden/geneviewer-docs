@@ -1,0 +1,62 @@
+[
+  {
+    "heading": ["*E.coli* Lac operon"],
+    "id": ["e-coli-lac-operon"],
+    "prose": [],
+    "charts": ["e-coli-lac-operon"]
+  },
+  {
+    "heading": ["Omphalotin gene clusters"],
+    "id": ["omphalotin-gene-clusters"],
+    "prose": [],
+    "charts": ["omphalotin-gene-clusters", "omphalotin-gene-clusters-2", "omphalotin-gene-clusters-3"]
+  },
+  {
+    "heading": ["*H. sapiens* Hox genes using `biomaRt`"],
+    "id": ["h-sapiens-hox-genes-using-biomart"],
+    "prose": [],
+    "charts": ["h-sapiens-hox-genes-using-biomart"]
+  },
+  {
+    "heading": ["BRCA1 splice variants"],
+    "id": ["brca1-splice-variants"],
+    "prose": [],
+    "charts": ["brca1-splice-variants"]
+  },
+  {
+    "heading": ["*Saccharopolyspora erythraea* Erythromycin"],
+    "id": ["saccharopolyspora-erythraea-erythromycin"],
+    "prose": [],
+    "charts": ["saccharopolyspora-erythraea-erythromycin"]
+  },
+  {
+    "heading": ["*Saccharopolyspora erythraea* Erythromycin protein alignment"],
+    "id": ["saccharopolyspora-erythraea-erythromycin-protein-alignment"],
+    "prose": [],
+    "charts": ["saccharopolyspora-erythraea-erythromycin-protein-alignment", "saccharopolyspora-erythraea-erythromycin-protein-alignment-2"]
+  },
+  {
+    "heading": ["*bla*KPC-2 plasmid pQEB1 and its variants"],
+    "id": ["blakpc-2-plasmid-pqeb1-and-its-variants"],
+    "prose": [],
+    "charts": ["blakpc-2-plasmid-pqeb1-and-its-variants"]
+  },
+  {
+    "heading": ["Tn7-like transposons carrying a CRISPR-Cas system"],
+    "id": ["tn7-like-transposons-carrying-a-crispr-cas-system"],
+    "prose": ["Redrawn from Figure 3 of Peters et al. (2017). The [tutorial](Tn7_CRISPR.html) builds this chart step by step."],
+    "charts": ["tn7-like-transposons-carrying-a-crispr-cas-system"]
+  },
+  {
+    "heading": ["Genomes of the four coronavirus genera"],
+    "id": ["genomes-of-the-four-coronavirus-genera"],
+    "prose": ["After Figure 1 of Chazal (2021). Drag the slider below the genomes to zoom in on the accessory genes."],
+    "charts": ["genomes-of-the-four-coronavirus-genera"]
+  },
+  {
+    "heading": ["Mitochondrial gene order: locust and human"],
+    "id": ["mitochondrial-gene-order-locust-and-human"],
+    "prose": [],
+    "charts": ["mitochondrial-gene-order-locust-and-human"]
+  }
+]

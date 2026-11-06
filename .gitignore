@@ -1,0 +1,11 @@
+node_modules/
+.DS_Store
+.try-app.env
+_site/
+.sources/
+site/.vitepress/cache
+site/.vitepress/dist
+# Made at build time from the R package
+site/r/reference/
+site/r/news.md
+site/.vitepress/r-reference.json
