@@ -37,7 +37,6 @@ A chart is described by a *spec*: a plain object with the data and one key for e
 
 ```js
 const chart = geneviewer.newChart("#chart", {
-  version: 1,
   data: genes,
   fields: { cluster: "cluster", group: "class" },
   labels: { label: "name" },

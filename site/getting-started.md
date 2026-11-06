@@ -107,7 +107,6 @@ A chart is drawn into an element, which sets its size, from a spec: the data and
   ];
 
   const chart = geneviewer.newChart("#chart", {
-    version: 1,
     data: genes,
     fields: { group: "class" },
   });

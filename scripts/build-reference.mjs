@@ -204,9 +204,10 @@ ${componentSections}
     <ul>
       <li><strong>Library:</strong> semantic versioning from 1.0. While on 0.x,
         minor versions may change the API.</li>
-      <li><strong>Spec:</strong> the <code>version</code> key, 1. A spec with a
-        newer version than the library knows is drawn as far as possible, with
-        a warning in the console.</li>
+      <li><strong>Spec:</strong> the optional <code>version</code> key. A spec
+        without one is version 1, the only version so far. A spec with a newer
+        version than the library knows is drawn as far as possible, with a
+        warning in the console.</li>
     </ul>
 `;
 

@@ -71,7 +71,7 @@ function javascript(chart) {
   const { id, spec } = chart;
   const { version, height, width, data, ...rest } = spec;
   const tables = {};
-  const shown = { version };
+  const shown = {};
 
   const name = !usesGeneIdentity.has(id) && !Array.isArray(data) ? namedTables.get(sameTable(data)) : null;
   if (name && id.startsWith("guide-")) shown.data = { $code: name };
