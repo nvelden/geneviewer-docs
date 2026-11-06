@@ -1,4 +1,4 @@
-// Site check: serves _site/ (npm run site) and loads its pages. Every chart
+// Site check: serves _site/ (npm run build) and loads its pages. Every chart
 // draws, nothing shows an error, the console has no errors, the event log
 // of the interactive chart logs a selection, the JavaScript shown with each
 // chart runs and draws the same chart, each example has JavaScript and R code,
@@ -14,7 +14,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
                 ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png" };
 
 (async () => {
-  if (!fs.existsSync(path.join(root, "index.html"))) throw new Error("_site/ is missing: run npm run site.");
+  if (!fs.existsSync(path.join(root, "index.html"))) throw new Error("_site/ is missing: run npm run build.");
   // As on GitHub Pages: under /geneviewer-docs/, and /name serves name.html
   const server = http.createServer((req, res) => {
     const url = decodeURIComponent(new URL(req.url, "http://localhost").pathname).replace(/^\/geneviewer-docs/, "");
@@ -190,7 +190,6 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       expect(errors.length === 0, `${label}: no console errors` + (errors.length ? ": " + errors.join("; ") : ""));
       await page.close();
     }
-    // The API reference lists every option of every component
     // The language switch: the text, the code tabs and "On this page" follow it,
     // and it is remembered
     {
@@ -235,6 +234,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       await context.close();
     }
 
+    // The API reference lists every option of every component
     const schema = JSON.parse(fs.readFileSync(path.join(__dirname, "..", ".sources", "geneviewer-js", "schema", "spec-v1.schema.json"), "utf8"));
     const page = await browser.newPage();
     const errors = [];

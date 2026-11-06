@@ -1,7 +1,7 @@
 // Make the thumbnails of the home page's gallery from the charts of the site:
 // site/public/gallery/<id>.jpg and the list site/.vitepress/gallery.json. The
 // images are committed, as the site's build has no browser. Run after
-// scripts/export-examples.R when the charts change: npm run site:gallery
+// scripts/export-examples.R when the charts change: npm run gallery
 // (needs a Playwright browser, or Chrome with GENEVIEWER_CHROME=1).
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";

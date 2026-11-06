@@ -27,7 +27,6 @@ for (dir in c("GENEVIEWER_R_DIR", "GENEVIEWER_TUTORIALS_DIR")) {
 suppressMessages(pkgload::load_all(Sys.getenv("GENEVIEWER_R_DIR"), quiet = TRUE))
 suppressMessages(library(dplyr))
 library(magrittr)
-options(geneviewer.record_spec = TRUE)
 out_dir <- "site/public/charts"
 source("scripts/write-chart.R")
 

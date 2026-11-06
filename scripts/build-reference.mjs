@@ -174,7 +174,7 @@ ${componentSections}
     <p>
       Handlers get <code>{ type, detail }</code>. Each event is also sent as a
       DOM event, <code>geneviewer:&lt;name&gt;</code>, on the chart's element;
-      see the <a href="examples.html#interactive">interactive example</a>.
+      see the <a href="what-is-geneviewer.html">interactive example</a>.
       <code>events</code> in the spec turns them on.
     </p>
     <table>

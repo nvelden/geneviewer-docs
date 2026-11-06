@@ -2,10 +2,9 @@
 #
 # Runs the two vignettes the site follows, vignettes/Examples.Rmd and
 # vignettes/geneviewer.Rmd, and writes for each chart they draw
-# site/public/charts/<id>.json: its R code, height and the chart spec R
-# records (options(geneviewer.record_spec = TRUE)). The examples page is
-# listed in site/.vitepress/examples.json, by section of the vignette. The site
-# draws the charts from the specs with the JavaScript in this repo and shows
+# site/public/charts/<id>.json: its R code, height and the chart's spec. The
+# examples page is listed in site/.vitepress/examples.json, by section of the
+# vignette. The site draws the charts from the specs with geneviewer-js and shows
 # each chart's JavaScript, made from its spec (site/.vitepress/charts.mjs).
 #
 # Run from the repo root, with GENEVIEWER_R_DIR set (or in .try-app.env):
@@ -21,7 +20,6 @@ if (!dir.exists(r_dir)) stop("Set GENEVIEWER_R_DIR to the geneviewer R package r
 suppressMessages(pkgload::load_all(r_dir, quiet = TRUE))
 suppressMessages(library(dplyr))
 library(magrittr)
-options(geneviewer.record_spec = TRUE)
 
 out_dir <- "site/public/charts"
 # The charts of the articles have their own script (scripts/export-articles.R)
