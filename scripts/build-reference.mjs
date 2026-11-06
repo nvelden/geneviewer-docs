@@ -119,7 +119,6 @@ const body = `
       <tr><td><code>geneviewer.compile(spec)</code></td><td>The render model a spec gives: clusters split, per-cluster settings applied, theme resolved. For tests and debugging.</td></tr>
       <tr><td><code>geneviewer.themes</code></td><td>The built-in themes and their settings.</td></tr>
       <tr><td><code>geneviewer.palettes</code></td><td>The built-in colour palettes.</td></tr>
-      <tr><td><code>geneviewer.chartToSVG(el)</code>, <code>geneviewer.chartToPNG(el)</code></td><td>A drawn chart as SVG text or a PNG <code>Blob</code> (a Promise).</td></tr>
       <tr><td><code>geneviewer.version</code></td><td>The library's version.</td></tr>
     </table>
 
