@@ -41,6 +41,20 @@ Rscript scripts/export-examples.R
 GENEVIEWER_CHROME=1 npm run gallery
 ```
 
+## The R articles
+
+An article's source is `articles/<name>.Rmd`. Running it writes its page in
+`site/r/articles/` and its charts, both committed, so the code on a page is the
+code that ran. It reads its data from a checkout of
+[geneviewer-tutorials](https://github.com/nvelden/geneviewer-tutorials):
+
+```sh
+GENEVIEWER_R_DIR=... GENEVIEWER_TUTORIALS_DIR=... Rscript scripts/export-articles.R gff
+```
+
+Without a name it runs all of them. See the script for what each one needs. A
+new article also goes in the sidebar, in `site/.vitepress/config.mjs`.
+
 ## Licence
 
 MIT. See LICENSE.md.

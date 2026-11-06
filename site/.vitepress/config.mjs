@@ -17,6 +17,15 @@ const rSidebar = [
     { text: "Reference", link: "/r/reference/" },
     { text: "Changelog", link: "/r/news" },
   ] },
+  { text: "Articles", items: [
+    { text: "GenBank files", link: "/r/articles/genbank" },
+    { text: "GFF files", link: "/r/articles/gff" },
+    { text: "FASTA files", link: "/r/articles/fasta" },
+    { text: "Protein alignments", link: "/r/articles/protein-alignment" },
+    { text: "MUMmer alignments", link: "/r/articles/mummer" },
+    { text: "Gene transcripts", link: "/r/articles/transcripts" },
+    { text: "A published figure", link: "/r/articles/published-figure" },
+  ] },
   { text: "Functions", collapsed: false, items: rItems(false) },
   { text: "Datasets", collapsed: true, items: rItems(true) },
 ];
@@ -69,7 +78,7 @@ export default defineConfig({
     search: { provider: "local" },
     nav: [
       { text: "Guide", link: "/getting-started", activeMatch: "^/(getting-started|what-is-geneviewer|examples|api)" },
-      { text: "R reference", link: "/r/reference/", activeMatch: "^/r/" },
+      { text: "R package", link: "/r/reference/", activeMatch: "^/r/" },
     ],
     sidebar: { "/r/": rSidebar, "/": [
       {

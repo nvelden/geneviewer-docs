@@ -127,11 +127,26 @@ function chartMarkdown(id, flags = []) {
   return `${element}\n\n${tabs}`;
 }
 
+// Where the links between the R package's vignettes go on this site
+const articles = {
+  geneviewer: "/getting-started?lang=r",
+  LoadGenBankFiles: "/r/articles/genbank",
+  LoadGFF: "/r/articles/gff",
+  LoadFastaFiles: "/r/articles/fasta",
+  BLASTP: "/r/articles/protein-alignment",
+  MUMMER: "/r/articles/mummer",
+  Transcripts: "/r/articles/transcripts",
+  Tn7_CRISPR: "/r/articles/published-figure",
+};
+
 // The examples page, section by section as in the R package's Examples page
 function examplesMarkdown() {
   return sections.map((section) => {
     const prose = section.prose.join("\n\n")
-      .replace(/\]\((?!http)([\w-]+)\.html\)/g, "](https://nvelden.github.io/geneviewer/articles/$1.html)");
+      .replace(/\]\((?!http)([\w-]+)\.html\)/g, (_, name) => {
+        if (!articles[name]) throw new Error(`Examples.Rmd links to ${name}.html: add it to the articles`);
+        return `](${articles[name]})`;
+      });
     const charts = section.charts.map((id) => chartMarkdown(id, ["fold"])).join("\n\n");
     return `## ${section.heading} {#${section.id}}\n\n${prose}\n\n${charts}`;
   }).join("\n\n");
@@ -179,7 +194,8 @@ export function expand(source) {
 export function writeDataFiles(outDir) {
   const dir = join(outDir, "charts/data");
   mkdirSync(dir, { recursive: true });
-  for (const file of readdirSync(chartsDir)) {
+  // The articles show R only
+  for (const file of readdirSync(chartsDir).filter((name) => !name.startsWith("article-"))) {
     const { tables } = javascript(JSON.parse(readFileSync(join(chartsDir, file), "utf8")));
     if (Object.keys(tables).length) writeFileSync(join(dir, file), JSON.stringify(tables));
   }

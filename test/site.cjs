@@ -74,7 +74,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       }, { code, size });
     };
 
-    for (const name of ["", "what-is-geneviewer", "getting-started", "examples"]) {
+    for (const name of ["", "what-is-geneviewer", "getting-started", "examples", ...fs.readdirSync(path.join(__dirname, "..", "articles")).filter((file) => file.endsWith(".Rmd")).map((file) => `r/articles/${file.replace(".Rmd", "")}`)]) {
       const label = name || "home";
       const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
       const errors = [];

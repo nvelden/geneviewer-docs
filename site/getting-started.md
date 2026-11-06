@@ -859,10 +859,10 @@ webshot2::webshot("temp.html", "output.png", zoom = 1, selector = ".geneviewer")
 
 ## Preparing data
 
-[[The JavaScript library only draws. These steps of the [R package](https://nvelden.github.io/geneviewer/) work on the data before it reaches the chart, so in JavaScript you pass their results as tables:||The R package also prepares the data for a chart:]]
+[[The JavaScript library only draws. These steps of the [R package](/r/reference/) work on the data before it reaches the chart, so in JavaScript you pass their results as tables:||The R package also prepares the data for a chart:]]
 
-- **Reading files:** [GenBank](https://nvelden.github.io/geneviewer/articles/LoadGenBankFiles.html), [GFF](https://nvelden.github.io/geneviewer/articles/LoadGFF.html) and [FASTA](https://nvelden.github.io/geneviewer/articles/LoadFastaFiles.html).
-- **Protein alignment:** [cluster comparison with protein alignments](https://nvelden.github.io/geneviewer/articles/BLASTP.html).
-- **Genome alignment:** [MUMmer alignments](https://nvelden.github.io/geneviewer/articles/MUMMER.html).
+- **Reading files:** [GenBank](/r/articles/genbank), [GFF](/r/articles/gff) and [FASTA](/r/articles/fasta).
+- **Protein alignment:** [cluster comparison with protein alignments](/r/articles/protein-alignment).
+- **Genome alignment:** [MUMmer alignments](/r/articles/mummer).
 - **Normalizing:** `GC_normalize()` spaces the genes of a cluster evenly and changes their positions.
 - **Matching genes for links:** `GC_links()` makes the link table from a column of the genes.

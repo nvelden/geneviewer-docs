@@ -9,6 +9,6 @@ next:
 
 # Examples
 
-These are the charts of the [R package's examples](https://nvelden.github.io/geneviewer/articles/Examples.html), drawn live by geneviewer from their specs. Hover a gene for its tooltip, or the chart for its save button. Each chart has its code in JavaScript and in R, and both draw the same chart.
+These are the charts of the R package's examples, drawn live by geneviewer from their specs. Hover a gene for its tooltip, or the chart for its save button. Each chart has its code in JavaScript and in R, and both draw the same chart.
 
 @examples

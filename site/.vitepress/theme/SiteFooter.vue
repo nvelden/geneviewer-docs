@@ -21,7 +21,7 @@ import { withBase } from "vitepress";
       <div>
         <div class="gv-footer-title">geneviewer</div>
         <ul>
-          <li><a target="_blank" rel="noreferrer" href="https://nvelden.github.io/geneviewer/">R package</a></li>
+          <li><a target="_blank" rel="noreferrer" href="https://github.com/nvelden/geneviewer">R package</a></li>
           <li><a target="_blank" rel="noreferrer" href="https://cran.r-project.org/package=geneviewer">CRAN</a></li>
           <li><a target="_blank" rel="noreferrer" href="https://nvelden.github.io/geneviewer-shinylive/">Gene Cluster Dashboard</a></li>
         </ul>
