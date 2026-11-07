@@ -96,7 +96,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
           expect(response.ok(), `${label}: ${image} loads`);
         }
         const hrefs = await page.evaluate(() => [...document.querySelectorAll(".VPHero .actions a")].map((a) => a.textContent.trim()));
-        expect(hrefs.join() === "Get started,What is geneviewer?,Examples", `${label}: hero links (${hrefs})`);
+        expect(hrefs.join() === "Get started,What is geneviewer?,Examples,Dashboard", `${label}: hero links (${hrefs})`);
         const scrollers = await page.evaluate(() => [...document.querySelectorAll("body *")]
           .filter((node) => ["auto", "scroll"].includes(getComputedStyle(node).overflowY) && node.scrollHeight > node.clientHeight + 1)
           .map((node) => node.className));

@@ -19,6 +19,11 @@ hero:
     - theme: alt
       text: Examples
       link: /examples
+    - theme: alt
+      text: Dashboard
+      link: https://nvelden.github.io/geneviewer-shinylive/
+      target: _blank
+      rel: noreferrer
 
 features:
   - title: Genes
