@@ -4,6 +4,9 @@ import { defineConfig } from "vitepress";
 import { expand, sections, writeDataFiles } from "./charts.mjs";
 
 const { version } = JSON.parse(readFileSync(new URL("../../node_modules/geneviewer-js/package.json", import.meta.url), "utf8"));
+// The R package's version on CRAN, shown in the nav bar. Set at each R release,
+// with R_REF in scripts/fetch-sources.sh.
+const rVersion = "0.2.0";
 const base = "/geneviewer-docs/";
 
 // The R reference is made at build time (scripts/rd2md.R)
@@ -66,7 +69,7 @@ export default defineConfig({
         { find: /^.*\/VPFooter\.vue$/, replacement: fileURLToPath(new URL("./theme/SiteFooter.vue", import.meta.url)) },
       ],
     },
-    define: { __APP_VERSION__: JSON.stringify(version) },
+    define: { __APP_VERSION__: JSON.stringify(version), __R_VERSION__: JSON.stringify(rVersion) },
   },
   buildEnd(site) {
     writeDataFiles(site.outDir);

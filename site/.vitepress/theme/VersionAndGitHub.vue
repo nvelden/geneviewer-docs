@@ -1,12 +1,13 @@
 <script setup>
-const version = __APP_VERSION__;
-const repo = "https://github.com/nvelden/geneviewer-js";
+import { usePageLanguage } from "./language.js";
+
+const current = usePageLanguage();
 </script>
 
 <template>
   <div class="gv-nav-links">
-    <a :href="`${repo}/releases`" target="_blank" rel="noreferrer" :title="`${version} release notes`">{{ version }}</a>
-    <a :href="repo" target="_blank" rel="noreferrer" title="geneviewer-js on GitHub">GitHub</a>
+    <a :href="current.versionLink" target="_blank" rel="noreferrer" :title="current.versionTitle">{{ current.version }}</a>
+    <a :href="current.repo" target="_blank" rel="noreferrer" :title="`${current.repoName} on GitHub`">GitHub</a>
   </div>
 </template>
 

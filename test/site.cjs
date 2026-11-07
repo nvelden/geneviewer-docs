@@ -206,7 +206,11 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         return names;
       });
       const outline = (text) => lang.locator(".VPDocAsideOutline a:visible", { hasText: text }).count();
+      const navLinks = () => lang.locator(".gv-nav-links a").evaluateAll((links) => links.map((link) => link.href));
+      const jsVersion = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "node_modules", "geneviewer-js", "package.json"), "utf8")).version;
       await lang.goto(`${base}getting-started`, { waitUntil: "networkidle" });
+      expect((await navLinks())[1] === "https://github.com/nvelden/geneviewer-js", "language: the nav bar links to the JavaScript repo");
+      expect(await lang.locator(".gv-nav-links a").first().textContent() === jsVersion, "language: the nav bar shows the JavaScript version");
       expect(await shown("preventGeneOverlap") > 0 && await shown("prevent_gene_overlap") === 0, "language: JavaScript by default");
       expect(await outline("Shiny") === 0, "language: Shiny is not in the outline for JavaScript");
       const heading = lang.locator("#zoom");
@@ -215,6 +219,10 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       await lang.locator(".gv-language button", { hasText: /^R$/ }).first().click();
       await lang.waitForTimeout(300);
       expect(Math.abs((await heading.boundingBox()).y - before) < 5, "language: the page stays at the same place");
+      expect((await navLinks()).join().toLowerCase() === "https://cran.r-project.org/package=geneviewer,https://github.com/nvelden/geneviewer",
+        `language: the nav bar links to CRAN and the R repo for R (${await navLinks()})`);
+      expect(/^\d+\.\d+\.\d+$/.test(await lang.locator(".gv-nav-links a").first().textContent()) && await lang.locator(".gv-nav-links a").first().textContent() !== jsVersion,
+        "language: the nav bar shows the R version for R");
       expect(await shown("prevent_gene_overlap") > 0 && await shown("preventGeneOverlap") === 0, "language: the text shows the R names");
       const tabsR = await activeTabs();
       expect(tabsR.R > 50 && !tabsR.JavaScript, `language: every code tab shows R (${JSON.stringify(tabsR)})`);
@@ -227,6 +235,19 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       await lang.waitForTimeout(300);
       const tabsJs = await activeTabs();
       expect(!tabsJs.R && await shown("preventGeneOverlap") > 0, `language: a code tab changes the whole page (${JSON.stringify(tabsJs)})`);
+      // The footer is on the pages without a sidebar
+      const footerLinks = async () => [await lang.locator(".gv-footer a", { hasText: /^Issues$/ }).getAttribute("href"),
+                                       await lang.locator(".gv-footer a", { hasText: /^Releases$/ }).getAttribute("href")].join();
+      await lang.goto(base, { waitUntil: "networkidle" });
+      expect(await footerLinks() === "https://github.com/nvelden/geneviewer-js/issues,https://github.com/nvelden/geneviewer-js/releases",
+        "language: the footer links to the JavaScript repo");
+      await lang.locator(".gv-language button", { hasText: /^R$/ }).first().click();
+      await lang.waitForTimeout(300);
+      expect(await footerLinks() === "https://github.com/nvelden/geneviewer/issues,https://github.com/nvelden/geneviewer/releases",
+        "language: the footer links to the R repo for R");
+      await lang.locator(".gv-language button", { hasText: /^JavaScript$/ }).first().click();
+      await lang.goto(`${base}r/reference/`, { waitUntil: "networkidle" });
+      expect((await navLinks())[1] === "https://github.com/nvelden/geneviewer", "language: an R page links to the R repo, also with JavaScript chosen");
       await lang.goto(`${base}getting-started?lang=r#shiny`, { waitUntil: "networkidle" });
       await lang.waitForTimeout(300);
       const shiny = await lang.locator("#shiny").boundingBox();

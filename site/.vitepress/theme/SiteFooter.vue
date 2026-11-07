@@ -1,5 +1,8 @@
 <script setup>
 import { withBase } from "vitepress";
+import { usePageLanguage } from "./language.js";
+
+const current = usePageLanguage();
 </script>
 
 <template>
@@ -12,8 +15,8 @@ import { withBase } from "vitepress";
       <div>
         <div class="gv-footer-title">Resources</div>
         <ul>
-          <li><a target="_blank" rel="noreferrer" href="https://github.com/nvelden/geneviewer-js/issues">Issues</a></li>
-          <li><a target="_blank" rel="noreferrer" href="https://github.com/nvelden/geneviewer-js/releases">Releases</a></li>
+          <li><a target="_blank" rel="noreferrer" :href="`${current.repo}/issues`">Issues</a></li>
+          <li><a target="_blank" rel="noreferrer" :href="`${current.repo}/releases`">Releases</a></li>
           <li><a target="_blank" rel="noreferrer" href="https://www.npmjs.com/package/geneviewer-js">npm</a></li>
           <li><a target="_blank" rel="noreferrer" href="https://github.com/nvelden/geneviewer-js/blob/main/docs/roadmap.md">Roadmap</a></li>
         </ul>

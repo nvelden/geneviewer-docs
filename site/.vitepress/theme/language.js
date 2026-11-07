@@ -1,14 +1,41 @@
 // The language the guide is read in. The pages hold the text of every language
 // (.lang-js, .lang-r; see "Writing for each language" in the README) and the
 // attribute on <html> shows one. To add a language, add it here and in custom.css.
-import { ref } from "vue";
+// The version and links of the nav bar and footer follow it (usePageLanguage).
+import { computed, ref } from "vue";
+import { useData } from "vitepress";
 
 export const languages = [
-  { id: "js", label: "JavaScript" },
-  { id: "r", label: "R" },
+  {
+    id: "js",
+    label: "JavaScript",
+    repo: "https://github.com/nvelden/geneviewer-js",
+    repoName: "geneviewer-js",
+    version: __APP_VERSION__,
+    versionLink: "https://github.com/nvelden/geneviewer-js/releases",
+    versionTitle: `${__APP_VERSION__} release notes`,
+  },
+  {
+    id: "r",
+    label: "R",
+    repo: "https://github.com/nvelden/geneviewer",
+    repoName: "geneviewer",
+    version: __R_VERSION__,
+    versionLink: "https://CRAN.R-project.org/package=geneviewer",
+    versionTitle: `${__R_VERSION__} on CRAN`,
+  },
 ];
 
 export const language = ref("js");
+
+/** The language the links of a page are for: the pages under /r/ are about the R package, whatever the switch says. */
+export function usePageLanguage() {
+  const { page } = useData();
+  return computed(() => {
+    const id = page.value.relativePath.startsWith("r/") ? "r" : language.value;
+    return languages.find((entry) => entry.id === id);
+  });
+}
 
 // Show the code tab of the language in every chart. Other tabs, such as npm and
 // yarn, are left alone.

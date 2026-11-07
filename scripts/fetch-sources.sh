@@ -4,7 +4,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-# The R package's docs to show. Set to the release tag at each R release.
+# The R package's docs to show. Set to the release tag at each R release, and
+# rVersion in site/.vitepress/config.mjs to its version.
 R_REF="m6-js-library"
 
 fetch() { # repo, ref, paths...
