@@ -97,6 +97,11 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         }
         const hrefs = await page.evaluate(() => [...document.querySelectorAll(".VPHero .actions a")].map((a) => a.textContent.trim()));
         expect(hrefs.join() === "Get started,What is geneviewer?,Examples", `${label}: hero links (${hrefs})`);
+        const scrollers = await page.evaluate(() => [...document.querySelectorAll("body *")]
+          .filter((node) => ["auto", "scroll"].includes(getComputedStyle(node).overflowY) && node.scrollHeight > node.clientHeight + 1)
+          .map((node) => node.className));
+        const sideways = await page.evaluate(() => document.documentElement.scrollWidth - innerWidth);
+        expect(scrollers.length === 0 && sideways <= 0, `${label}: only the page scrolls (${scrollers}; ${sideways}px sideways)`);
         expect(errors.length === 0, `${label}: no console errors` + (errors.length ? ": " + errors.join("; ") : ""));
         await page.close();
         continue;
