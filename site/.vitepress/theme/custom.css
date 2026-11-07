@@ -44,6 +44,13 @@
   display: none !important;
 }
 
+/* The sidebar also links to the dashboard, and the nav bar is full below this */
+@media (max-width: 899px) {
+  .VPNavBarMenuLink[href*="geneviewer-shinylive"] {
+    display: none;
+  }
+}
+
 @media (min-width: 768px) {
   .DocSearch-Button {
     border-radius: 1000px;

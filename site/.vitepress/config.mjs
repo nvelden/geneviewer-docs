@@ -8,6 +8,7 @@ const { version } = JSON.parse(readFileSync(new URL("../../node_modules/geneview
 // with R_REF in scripts/fetch-sources.sh.
 const rVersion = "0.2.0";
 const base = "/geneviewer-docs/";
+const dashboard = "https://nvelden.github.io/geneviewer-shinylive/";
 
 // The R reference is made at build time (scripts/rd2md.R)
 const rPages = JSON.parse(readFileSync(new URL("./r-reference.json", import.meta.url), "utf8"));
@@ -19,6 +20,7 @@ const rSidebar = [
     { text: "Shiny", link: "/getting-started?lang=r#shiny" },
     { text: "Reference", link: "/r/reference/" },
     { text: "Changelog", link: "/r/news" },
+    { text: "Gene Cluster Dashboard", link: dashboard },
   ] },
   { text: "Articles", items: [
     { text: "GenBank files", link: "/r/articles/genbank" },
@@ -82,6 +84,7 @@ export default defineConfig({
     nav: [
       { text: "Guide", link: "/getting-started", activeMatch: "^/(getting-started|what-is-geneviewer|examples|api)" },
       { text: "R package", link: "/r/reference/", activeMatch: "^/r/" },
+      { text: "Dashboard", link: dashboard },
     ],
     sidebar: { "/r/": rSidebar, "/": [
       {
@@ -91,6 +94,7 @@ export default defineConfig({
           { text: "Getting started", link: "/getting-started" },
           { text: "Examples", link: "/examples" },
           { text: "API reference", link: "/api" },
+          { text: "Gene Cluster Dashboard", link: dashboard },
         ],
       },
       {
