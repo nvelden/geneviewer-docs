@@ -116,9 +116,9 @@ const body = `
     <h2 id="functions">Other functions</h2>
     <table>
       <tr><th>Name</th><th>Description</th></tr>
-      <tr><td><code>geneviewer.compile(spec)</code></td><td>The render model a spec gives: clusters split, per-cluster settings applied, theme resolved. For tests and debugging.</td></tr>
-      <tr><td><code>geneviewer.themes</code></td><td>The built-in themes and their settings.</td></tr>
-      <tr><td><code>geneviewer.palettes</code></td><td>The built-in colour palettes.</td></tr>
+      <tr><td><code>geneviewer.compile(spec)</code></td><td>The render model a spec gives: clusters split, per-cluster settings applied, theme resolved. For tests and debugging; its shape is internal and may change in any version.</td></tr>
+      <tr><td><code>geneviewer.themes</code></td><td>The built-in themes and their settings, by name. The names are those of <code>theme</code>; the settings use the renderer's names and are not part of spec v1.</td></tr>
+      <tr><td><code>geneviewer.palettes</code></td><td>The built-in colour palettes: arrays of colours, by the names <code>theme.palette</code> takes.</td></tr>
       <tr><td><code>geneviewer.version</code></td><td>The library's version.</td></tr>
     </table>
 
@@ -177,16 +177,27 @@ ${componentSections}
       <code>events</code> in the spec turns them on.
     </p>
     <table>
-      <tr><th>Event</th><th>When</th></tr>
-      <tr><td><code>click</code></td><td>An element was clicked (<code>events.click</code>).</td></tr>
-      <tr><td><code>dblclick</code></td><td>An element was double-clicked (<code>events.dblclick</code>).</td></tr>
-      <tr><td><code>select</code></td><td>The selected element changed (<code>events.select</code>).</td></tr>
-      <tr><td><code>selection</code></td><td>The list of selected elements changed.</td></tr>
-      <tr><td><code>drag</code>, <code>dragmove</code></td><td>An element was moved, or is being moved (<code>events.drag</code>).</td></tr>
-      <tr><td><code>moves</code></td><td>Several elements were moved at once, or a move was undone or redone.</td></tr>
-      <tr><td><code>zoom</code></td><td>The zoom window changed (<code>events.zoom</code>).</td></tr>
-      <tr><td><code>rendered</code></td><td>The chart was drawn (<code>events.rendered</code>).</td></tr>
+      <tr><th>Event</th><th>When</th><th>Detail</th></tr>
+      <tr><td><code>click</code></td><td>An element was clicked (<code>events.click</code>).</td><td>The element (below).</td></tr>
+      <tr><td><code>dblclick</code></td><td>An element was double-clicked (<code>events.dblclick</code>).</td><td>The element.</td></tr>
+      <tr><td><code>select</code></td><td>The selected element changed (<code>events.select</code>).</td><td>The element selected last, or <code>null</code> when the selection is cleared.</td></tr>
+      <tr><td><code>selection</code></td><td>The list of selected elements changed.</td><td>An array of elements, in the order they were selected.</td></tr>
+      <tr><td><code>drag</code></td><td>An element was moved: dropped, nudged with the arrow keys, or moved by undo, redo or reset (<code>events.drag</code>).</td><td>The element, with <code>position: { moveX, moveY }</code>, its offset in pixels, and <code>action</code>: <code>"drag"</code>, <code>"nudge"</code>, <code>"undo"</code>, <code>"redo"</code> or <code>"reset"</code>.</td></tr>
+      <tr><td><code>dragmove</code></td><td>An element is being moved.</td><td>The element, with <code>position</code>.</td></tr>
+      <tr><td><code>moves</code></td><td>Several elements were moved in one step.</td><td><code>{ action, moves }</code>: <code>moves</code> is an array of what <code>drag</code> reports.</td></tr>
+      <tr><td><code>zoom</code></td><td>The zoom window changed (<code>events.zoom</code>).</td><td><code>mode</code>, <code>start</code>, <code>end</code>, <code>zoomed</code>, <code>range</code> (<code>null</code> when everything shows), <code>clusters</code> (<code>{ cluster, start, end }</code>, the base pairs each shows) and <code>action</code>: <code>"drag"</code>, <code>"keyboard"</code>, <code>"reset"</code>, <code>"set"</code> (<code>zoomTo()</code>) or <code>"render"</code>.</td></tr>
+      <tr><td><code>rendered</code></td><td>The chart was drawn (<code>events.rendered</code>).</td><td><code>id</code> (<code>events.renderId</code>, or one made for each draw), <code>chartId</code>, <code>width</code> and <code>height</code> in pixels.</td></tr>
     </table>
+    <p>An element, as <code>click</code>, <code>dblclick</code>, <code>select</code> and <code>selection</code> report it:</p>
+    <table>
+      <tr><th>Field</th><th>Description</th></tr>
+      <tr><td><code>component</code></td><td>The part of the chart: <code>"genes"</code>, <code>"transcript"</code>, <code>"labels"</code>, <code>"coordinates"</code>, <code>"links"</code>, <code>"legend"</code>, <code>"scale"</code>, <code>"scaleBar"</code>, <code>"sequence"</code>, <code>"title"</code>, <code>"clusterTitle"</code>, <code>"clusterFooter"</code>, <code>"clusterLabel"</code> or <code>"annotations"</code>.</td></tr>
+      <tr><td><code>cluster</code></td><td>The cluster's name; <code>null</code> for the chart title, the legend and links between clusters.</td></tr>
+      <tr><td><code>data</code></td><td>The gene's row for genes, transcripts and labels, the link's row for links, the group for the legend; otherwise <code>null</code>.</td></tr>
+      <tr><td><code>part</code></td><td><code>"title"</code> or <code>"subtitle"</code> of a title, cluster title, footer or label; <code>"label"</code> or <code>"marker"</code> in the legend.</td></tr>
+      <tr><td><code>style</code></td><td>How a selectable element is drawn, with the names of <code>elementStyle</code> options, so an editor can show the current values.</td></tr>
+    </table>
+    <p>The TypeScript types give each event's detail: <code>ChartEventDetails</code> in <code>geneviewer.d.ts</code>.</p>
 
     <h2 id="builds">Builds</h2>
     <table>
@@ -207,6 +218,9 @@ ${componentSections}
         without one is version 1, the only version so far. A spec with a newer
         version than the library knows is drawn as far as possible, with a
         warning in the console.</li>
+      <li><strong>Not part of spec v1:</strong> the output of
+        <code>compile()</code>, and the settings in <code>geneviewer.themes</code>.
+        Theme and palette names are.</li>
     </ul>
 `;
 

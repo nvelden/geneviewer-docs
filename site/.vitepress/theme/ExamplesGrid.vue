@@ -1,7 +1,7 @@
 <script setup>
 // The tilted honeycomb of charts on the home page, after the gallery of the
 // D3 docs (ExamplesGrid.vue, d3/d3, ISC licence). The thumbnails are made by
-// scripts/site-gallery.mjs from the charts of the site.
+// scripts/site-gallery.mjs from the charts of the site, in each build.
 import { onMounted, onUnmounted, ref, shallowRef } from "vue";
 import { withBase } from "vitepress";
 import gallery from "../gallery.json";

@@ -2,8 +2,9 @@
 // draws, nothing shows an error, the console has no errors, the event log
 // of the interactive chart logs a selection, the JavaScript shown with each
 // chart runs and draws the same chart, each example has JavaScript and R code,
-// the examples follow the R package's, and the API reference lists every
-// option of the schema. Run through `npm test`.
+// the examples follow the R package's, internal links to sections find them,
+// and the API reference names every method, option and event of the
+// library's types. Run through `npm test`.
 const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
@@ -260,38 +261,65 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       await context.close();
     }
 
-    // The API reference lists every option of every component
-    const schema = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "node_modules", "geneviewer-js", "dist", "spec-v1.schema.json"), "utf8"));
+    // Every internal link to a section finds it. Checked in the built HTML:
+    // VitePress checks links but not anchors, nor the reference's v-pre HTML
+    const htmlFiles = [];
+    const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).forEach((entry) => {
+      const file = path.join(dir, entry.name);
+      if (entry.isDirectory()) walk(file);
+      else if (entry.name.endsWith(".html")) htmlFiles.push(file);
+    });
+    walk(root);
+    const idCache = new Map();
+    const idsOf = (file) => {
+      if (!idCache.has(file)) {
+        idCache.set(file, new Set([...fs.readFileSync(file, "utf8").matchAll(/\sid="([^"]+)"/g)].map((m) => m[1])));
+      }
+      return idCache.get(file);
+    };
+    const targetOf = (from, href) => {
+      if (href.startsWith("#")) return from;
+      let url = href.replace(/[?#].*$/, "");
+      let file = url.startsWith("/") ? path.join(root, url.replace(/^\/geneviewer-docs\//, "/")) : path.join(path.dirname(from), url);
+      if (url.endsWith("/")) file = path.join(file, "index.html");
+      if (!file.endsWith(".html") && fs.existsSync(file + ".html")) file += ".html";
+      return fs.existsSync(file) && !fs.statSync(file).isDirectory() ? file : null;
+    };
+    const brokenAnchors = [];
+    let anchorLinks = 0;
+    for (const file of htmlFiles) {
+      for (const [, href] of fs.readFileSync(file, "utf8").matchAll(/\shref="([^"]*#[^"]+)"/g)) {
+        if (/^[a-z]+:/i.test(href)) continue;
+        anchorLinks += 1;
+        const target = targetOf(file, href);
+        const id = decodeURIComponent(href.split("#")[1]);
+        if (!target || !idsOf(target).has(id)) brokenAnchors.push(`${path.relative(root, file)}: ${href}`);
+      }
+    }
+    expect(anchorLinks > 100 && brokenAnchors.length === 0, `links: ${anchorLinks} links to sections find them` +
+      (brokenAnchors.length ? ` (broken: ${brokenAnchors.slice(0, 10).join(", ")})` : ""));
+
+    // The API reference names every method, newChart() option and event of
+    // the library's types (its tables are written by hand)
+    const dts = fs.readFileSync(path.join(__dirname, "..", "node_modules", "geneviewer-js", "dist", "geneviewer.d.ts"), "utf8");
+    const membersOf = (type) => {
+      const block = dts.match(new RegExp(`export type ${type} = \\{([\\s\\S]*?)\\n\\};`))?.[1] ?? "";
+      return [...block.matchAll(/^    (\w+)\??:/gm)].map((m) => m[1]);
+    };
+    const eventNames = [...(dts.match(/export type ChartEvent = ([^;]+);/)?.[1] ?? "").matchAll(/"(\w+)"/g)].map((m) => m[1]);
     const page = await browser.newPage();
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));
     await page.goto(base + "api", { waitUntil: "load" });
-    const listed = await page.evaluate(() => {
-      const out = {};
-      document.querySelectorAll("h3[id]").forEach((heading) => {
-        let table = heading.nextElementSibling;
-        while (table && table.tagName !== "TABLE" && !/^H[23]$/.test(table.tagName)) table = table.nextElementSibling;
-        if (table && table.tagName !== "TABLE") table = null;
-        out[heading.id] = table ? [...table.querySelectorAll("tr td:first-child code")].map((c) => c.textContent) : [];
-      });
-      return out;
-    });
-    const resolve = (node) => (node && node.$ref ? schema.$defs[node.$ref.split("/").pop()] : node);
-    const entryOf = (node) => {
-      const alternatives = node.oneOf || node.allOf || [node];
-      return alternatives.map(resolve).find((alt) => alt && alt.properties) ||
-        resolve(alternatives.find((alt) => alt.type === "array")?.items);
-    };
-    const missing = [];
-    for (const [key, node] of Object.entries(schema.properties)) {
-      const entry = entryOf(node);
-      if (!entry || !entry.properties || ["version", "data", "width", "height", "style"].includes(key)) continue;
-      for (const option of Object.keys(entry.properties)) {
-        if (!(listed[key] || []).includes(option)) missing.push(`${key}.${option}`);
-      }
-    }
-    expect(missing.length === 0, `api: every option of the schema is listed` +
-      (missing.length ? ` (missing: ${missing.slice(0, 10).join(", ")})` : ""));
+    const codes = new Set(await page.evaluate(() => [...document.querySelectorAll("code")].map((c) => c.textContent)));
+    const named = (name) => [...codes].some((code) => code === name || code.startsWith(name + "(") || code === "options." + name);
+    const unlisted = [
+      ...membersOf("Chart").filter((name) => !named(name)).map((name) => `chart.${name}()`),
+      ...membersOf("ChartOptions").filter((name) => !named(name)).map((name) => `options.${name}`),
+      ...eventNames.filter((name) => !codes.has(name)).map((name) => `event ${name}`),
+    ];
+    expect(membersOf("Chart").length > 10 && eventNames.length > 5 && unlisted.length === 0,
+      `api: every method, option and event of geneviewer.d.ts is listed` + (unlisted.length ? ` (missing: ${unlisted.join(", ")})` : ""));
     expect(errors.length === 0, `api: no page errors`);
     await page.close();
   } finally {

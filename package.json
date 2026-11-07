@@ -7,8 +7,8 @@
     "sources": "bash scripts/fetch-sources.sh",
     "reference": "Rscript --vanilla scripts/rd2md.R .sources/geneviewer/man site/r/reference site/.vitepress/r-reference.json && node scripts/news.mjs",
     "prepare-site": "npm run -s sources && npm run -s reference",
-    "build": "npm run -s prepare-site && vitepress build site",
-    "dev": "npm run -s prepare-site && vitepress dev site --host 127.0.0.1 --port 8484",
+    "build": "npm run -s prepare-site && npm run -s gallery && vitepress build site",
+    "dev": "npm run -s prepare-site && npm run -s gallery -- --if-missing && vitepress dev site --host 127.0.0.1 --port 8484",
     "preview": "vitepress preview site --host 127.0.0.1 --port 8484",
     "test": "node test/guide-names.mjs && node test/site.cjs",
     "gallery": "node scripts/site-gallery.mjs"

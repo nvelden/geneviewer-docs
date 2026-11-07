@@ -30,7 +30,10 @@ jobs:
           use-public-rspm: true
       - run: npm ci
       - run: npm install --no-save geneviewer-js@latest
+      # The gallery's thumbnails are made in the build, with Chrome
       - run: npm run build
+        env:
+          GENEVIEWER_CHROME: 1
       - run: npm test
         env:
           GENEVIEWER_CHROME: 1

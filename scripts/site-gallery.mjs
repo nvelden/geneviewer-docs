@@ -1,9 +1,10 @@
 // Make the thumbnails of the home page's gallery from the charts of the site:
-// site/public/gallery/<id>.jpg and the list site/.vitepress/gallery.json. The
-// images are committed, as the site's build has no browser. Run after
-// scripts/export-examples.R when the charts change: npm run gallery
-// (needs a Playwright browser, or Chrome with GENEVIEWER_CHROME=1).
-import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+// site/public/gallery/<id>.jpg and the list site/.vitepress/gallery.json.
+// Both are made by every build (npm run build) and are not committed, so they
+// follow the charts. npm run dev makes them only when they are missing
+// (--if-missing). Needs a Playwright browser or Chrome (GENEVIEWER_CHROME=1
+// goes straight to Chrome).
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { chromium } from "playwright-core";
 
 const SIDE = 320; // pixels of a thumbnail
@@ -35,10 +36,23 @@ const items = [
 ];
 
 const outDir = "site/public/gallery";
+const listFile = "site/.vitepress/gallery.json";
+if (process.argv.includes("--if-missing") && existsSync(listFile) &&
+    items.every(([id]) => existsSync(`${outDir}/${id}.jpg`))) {
+  console.log("gallery: thumbnails are there");
+  process.exit(0);
+}
 rmSync(outDir, { recursive: true, force: true });
 mkdirSync(outDir, { recursive: true });
 
-const browser = await chromium.launch(process.env.GENEVIEWER_CHROME ? { channel: "chrome" } : {});
+// Playwright's Chromium when it is installed, else Chrome
+const launch = async () => {
+  if (!process.env.GENEVIEWER_CHROME) {
+    try { return await chromium.launch(); } catch { /* not installed: use Chrome */ }
+  }
+  return chromium.launch({ channel: "chrome" });
+};
+const browser = await launch();
 const gallery = [];
 for (const [id, title, link] of items) {
   const { spec, height } = JSON.parse(readFileSync(`site/public/charts/${id}.json`, "utf8"));
@@ -69,5 +83,5 @@ for (const [id, title, link] of items) {
   gallery.push({ title, image, link });
 }
 await browser.close();
-writeFileSync("site/.vitepress/gallery.json", `${JSON.stringify(gallery, null, 2)}\n`);
+writeFileSync(listFile, `${JSON.stringify(gallery, null, 2)}\n`);
 console.log(`wrote ${gallery.length} thumbnails`);
