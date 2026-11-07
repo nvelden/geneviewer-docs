@@ -1,10 +1,10 @@
 // The body of the API reference page, from the schema
-// (schema/spec-v1.schema.json of geneviewer-js): one section per component with each option's
+// (dist/spec-v1.schema.json of the installed geneviewer-js): one section per component with each option's
 // name, type, default and description; plus newChart(), the chart's methods,
 // its events and the builds. The site puts it in site/api.md.
 import { readFileSync } from "node:fs";
 
-const schema = JSON.parse(readFileSync(".sources/geneviewer-js/schema/spec-v1.schema.json", "utf8"));
+const schema = JSON.parse(readFileSync("node_modules/geneviewer-js/dist/spec-v1.schema.json", "utf8"));
 const { version } = JSON.parse(readFileSync("node_modules/geneviewer-js/package.json", "utf8"));
 
 const escape = (text) => String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");

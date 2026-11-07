@@ -235,7 +235,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
     }
 
     // The API reference lists every option of every component
-    const schema = JSON.parse(fs.readFileSync(path.join(__dirname, "..", ".sources", "geneviewer-js", "schema", "spec-v1.schema.json"), "utf8"));
+    const schema = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "node_modules", "geneviewer-js", "dist", "spec-v1.schema.json"), "utf8"));
     const page = await browser.newPage();
     const errors = [];
     page.on("pageerror", (error) => errors.push(error.message));

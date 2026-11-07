@@ -3,8 +3,8 @@
 The documentation site of geneviewer, for JavaScript, R and, later, Python:
 <https://nvelden.github.io/geneviewer-docs/>.
 
-The library comes from npm (`geneviewer-js`). `scripts/fetch-sources.sh` reads
-its schema and the R package's man pages and NEWS from their public repos.
+The library and its schema come from npm (`geneviewer-js`). `scripts/fetch-sources.sh`
+reads the R package's man pages and NEWS from its public repo.
 
 ```sh
 npm ci
