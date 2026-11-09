@@ -14,7 +14,7 @@
     "gallery": "node scripts/site-gallery.mjs"
   },
   "dependencies": {
-    "geneviewer-js": "^0.3.9"
+    "geneviewer-js": "^0.3.10"
   },
   "devDependencies": {
     "playwright-core": "1.64.1",
