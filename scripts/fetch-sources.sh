@@ -24,5 +24,5 @@ fetch() { # repo, ref, paths...
 PY_REF="v0.1.0"
 
 fetch geneviewer "$R_REF" /man/ /NEWS.md
-fetch geneviewer-py "$PY_REF" /README.md /docs/NAMING.md /docs/differences.md \
+fetch geneviewer-py "$PY_REF" /README.md /NEWS.md \
   '/src/geneviewer/*.py' '/src/geneviewer/*/*.py' /src/geneviewer/datasets/datasets.json

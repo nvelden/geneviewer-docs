@@ -11,8 +11,7 @@ site/r/news.md
 site/.vitepress/r-reference.json
 # Made at build time from the Python package
 site/python/reference/
-site/python/naming.md
-site/python/differences.md
+site/python/news.md
 site/.vitepress/python-reference.json
 # Made at build time from the site's charts (scripts/site-gallery.mjs)
 site/public/gallery/

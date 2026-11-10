@@ -95,7 +95,7 @@ The drawing is done by the JavaScript library. The R package does the work befor
 
 <div class="lang-py">
 
-The drawing is done by the JavaScript library. The Python package does the work before it: it reads the files, runs the alignments and hands the library a spec. See [Reading files](/python/reading-files) and [Alignment](/python/alignment).
+The drawing is done by the JavaScript library. The Python package does the work before it: it reads the files, runs the alignments and hands the library a spec. See the [articles of the Python package](/python/articles/genbank).
 
 </div>
 

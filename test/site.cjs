@@ -76,7 +76,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
     };
 
     for (const name of ["", "what-is-geneviewer", "getting-started", "examples", ...fs.readdirSync(path.join(__dirname, "..", "articles")).filter((file) => file.endsWith(".Rmd")).map((file) => `r/articles/${file.replace(".Rmd", "")}`),
-      "python/", "python/reading-files", "python/alignment"]) {
+      "python/", ...fs.readdirSync(path.join(__dirname, "..", "articles", "python")).filter((file) => file.endsWith(".md")).map((file) => `python/articles/${file.replace(".md", "")}`)]) {
       const label = name || "home";
       const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
       const errors = [];
@@ -168,9 +168,9 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         };
       }));
       const withCode = blocks.filter((block) => block.tabs.length);
-      // The guide's charts also show Python (python/charts/, checked against
+      // The charts of the guide and the examples also show Python (python/charts/, checked against
       // the specs by scripts/check-python-charts.py)
-      const wantedTabs = name === "getting-started" ? "JavaScript,R,Python" : "JavaScript,R";
+      const wantedTabs = "JavaScript,R,Python";
       expect(withCode.every((block) => block.tabs.join() === wantedTabs &&
         block.code[0].includes("geneviewer.newChart(") && block.code.slice(1).every((code) => code.trim().length > 0)),
         `${label}: ${withCode.length} charts show ${wantedTabs.replace(/,/g, ", ")} code`);
@@ -190,7 +190,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         (wrong.length ? ` (${wrong.slice(0, 8).join("; ")})` : ""));
       await runner.close();
 
-      if (name.startsWith("python/")) {
+      if (name === "python/") {
         // A chart of the Python pages shows the Python that made it
         const shown = await page.evaluate(() => [...document.querySelectorAll(".gv-figure")].map((figure) =>
           (figure.nextElementSibling?.classList.contains("language-python") && figure.nextElementSibling.textContent.includes("chart = ")) || figure.dataset.chart));
@@ -302,8 +302,11 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       const py = await browser.newPage({ viewport: { width: 1200, height: 900 } });
       await py.goto(`${base}python/reference/`, { waitUntil: "networkidle" });
       const names = await py.evaluate(() => [...document.querySelectorAll(".vp-doc td a code")].map((code) => code.textContent));
-      expect(names.length >= 40 && ["GC()", "GC.links()", "read_gbk()", "protein_blast()", "zoom_to()", "datasets.load()"].every((name) => names.includes(name)),
-        `python reference: lists ${names.length} functions and methods`);
+      expect(names.length >= 50 && ["GC()", "GC.links()", "read_gbk()", "protein_blast()", "zoom_to()", "datasets.load()", "ophA_clusters"].every((name) => names.includes(name)),
+        `python reference: lists ${names.length} functions, methods and datasets`);
+      // The sidebar has the sections of the R package's
+      const sections = (await py.locator(".VPSidebar .VPSidebarItem.level-0 > .item .text").allTextContents()).join();
+      expect(sections === "Python package,Articles,Functions,Datasets", `python reference: the sidebar has the R package's sections (${sections})`);
       const repo = await py.evaluate(() => document.querySelector(".gv-nav-links a:last-child").href);
       expect(repo === "https://github.com/nvelden/geneviewer-py", `python reference: the nav bar links to the Python repository (${repo})`);
       await py.goto(`${base}python/reference/GC-links`, { waitUntil: "networkidle" });

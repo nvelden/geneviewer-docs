@@ -40,7 +40,7 @@ Install **geneviewer-py** from PyPI, with the extra for Shiny for Python, which 
 pip install "geneviewer-py[shiny]"
 ```
 
-The import name is `geneviewer`. The [Python pages](/python/) have more on installing, on Shiny, on reading files and on alignment.
+The import name is `geneviewer`. The [Python pages](/python/) have more on Shiny, on reading files and on alignment.
 
 </div>
 
@@ -1053,7 +1053,7 @@ The Python package has no function that writes an image. `chart.to_spec()` gives
 
 ## Preparing data
 
-[[The JavaScript library only draws. These steps of the [R package](/r/reference/) work on the data before it reaches the chart, so in JavaScript you pass their results as tables:||The R package also prepares the data for a chart:||The Python package also prepares the data for a chart, with the functions of the R package: see [Reading files](/python/reading-files) and [Alignment](/python/alignment). The articles below are for R:]]
+[[The JavaScript library only draws. These steps of the [R package](/r/reference/) work on the data before it reaches the chart, so in JavaScript you pass their results as tables:||The R package also prepares the data for a chart:||The Python package also prepares the data for a chart, with the functions of the R package: as in the [articles of the Python package](/python/articles/genbank). The articles below are for R:]]
 
 - **Reading files:** [GenBank](/r/articles/genbank), [GFF](/r/articles/gff) and [FASTA](/r/articles/fasta).
 - **Protein alignment:** [cluster comparison with protein alignments](/r/articles/protein-alignment).

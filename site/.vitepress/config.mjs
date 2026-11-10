@@ -40,21 +40,28 @@ const rSidebar = [
 
 // The Python reference is made at build time (scripts/pydoc2md.py)
 const pyPages = JSON.parse(readFileSync(new URL("./python-reference.json", import.meta.url), "utf8"));
-const pyItems = (group) => pyPages.filter((entry) => entry.group === group)
+const pyItems = (data) => pyPages.filter((entry) => entry.data === data)
   .map((entry) => ({ text: entry.title, link: `/python/reference/${entry.page}` }));
+// The same sections as the R package's
 const pySidebar = [
   { text: "Python package", items: [
-    { text: "Getting started", link: "/python/" },
-    { text: "Guide", link: "/getting-started?lang=py" },
-    { text: "Shiny for Python", link: "/python/shiny" },
-    { text: "Reading files", link: "/python/reading-files" },
-    { text: "Alignment", link: "/python/alignment" },
-    { text: "Names in Python and R", link: "/python/naming" },
-    { text: "Differences from R", link: "/python/differences" },
+    { text: "Installation", link: "/getting-started?lang=py#installation" },
+    { text: "Shiny", link: "/python/shiny" },
     { text: "Reference", link: "/python/reference/" },
+    { text: "Changelog", link: "/python/news" },
+    { text: "Gene Cluster Dashboard", link: dashboard },
   ] },
-  ...["Chart", "Shiny", "Files", "Alignment", "Themes", "Datasets"].map((group) => (
-    { text: group, collapsed: group !== "Chart", items: pyItems(group) })),
+  { text: "Articles", items: [
+    { text: "GenBank files", link: "/python/articles/genbank" },
+    { text: "GFF files", link: "/python/articles/gff" },
+    { text: "FASTA files", link: "/python/articles/fasta" },
+    { text: "Protein alignments", link: "/python/articles/protein-alignment" },
+    { text: "MUMmer alignments", link: "/python/articles/mummer" },
+    { text: "Gene transcripts", link: "/python/articles/transcripts" },
+    { text: "A published figure", link: "/python/articles/published-figure" },
+  ] },
+  { text: "Functions", collapsed: false, items: pyItems(false) },
+  { text: "Datasets", collapsed: true, items: pyItems(true) },
 ];
 
 const guide = (text, hash) => ({ text, link: `/getting-started#${hash}` });
@@ -109,7 +116,7 @@ export default defineConfig({
     nav: [
       { text: "Guide", link: "/getting-started", activeMatch: "^/(getting-started|what-is-geneviewer|examples|api)" },
       { text: "R package", link: "/r/reference/", activeMatch: "^/r/" },
-      { text: "Python package", link: "/python/", activeMatch: "^/python/" },
+      { text: "Python package", link: "/python/reference/", activeMatch: "^/python/" },
       { text: "Dashboard", link: dashboard },
     ],
     sidebar: { "/r/": rSidebar, "/python/": pySidebar, "/": [

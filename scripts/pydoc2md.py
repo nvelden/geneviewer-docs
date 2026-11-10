@@ -1,12 +1,12 @@
 """The Python reference of the docs site: docstrings to Markdown.
 
-Usage: python3 pydoc2md.py <geneviewer-py checkout> <out dir> <index json>
+Usage: python3 pydoc2md.py <geneviewer-py checkout> <out dir> <index json> <R reference dir>
 
 Reads the sources without importing them (the standard library only), so the
 build needs no Python packages. The pages are the public names of the package:
 ``__all__`` of ``geneviewer``, ``geneviewer.shiny`` and ``geneviewer.datasets``,
-and the public methods of ``GC``. Also writes the pages made from the package's
-``docs/NAMING.md`` and ``docs/differences.md``, next to the out dir.
+and the public methods of ``GC``. Also writes a page per dataset, from the R
+reference's page of that dataset, and the changelog from the package's NEWS.md.
 
 Fails if a page would lose content: a public name without a docstring, or a
 docstring section it does not know.
@@ -19,6 +19,7 @@ import sys
 from pathlib import Path
 
 repo, out, manifest = Path(sys.argv[1]), Path(sys.argv[2]), Path(sys.argv[3])
+r_reference = Path(sys.argv[4])
 package = repo / "src" / "geneviewer"
 out.mkdir(parents=True, exist_ok=True)
 
@@ -251,34 +252,57 @@ for entry in pages:
 
 datasets = json.loads((package / "datasets" / "datasets.json").read_text(encoding="utf-8"))
 lines = ["---", "prev: false", "next: false", "---", "", "# Python reference", "",
-         "Every function and method of the Python package, and its datasets."]
-for group, _ in GROUPS:
-    lines += ["", f"## {group}", "", "| | |", "| --- | --- |"]
-    lines += [f"| [`{e['title']}`](./{e['page']}) | {inline(e['summary'].rstrip('.'), True)} |"
-              for e in index if e["group"] == group]
-    if group == "Datasets":
-        lines += ["", "The datasets are those of the R package; "
-                  "`datasets.load(name)` returns one as a pandas DataFrame.", "",
-                  "| Dataset | Rows | Columns | |", "| --- | --- | --- | --- |"]
-        lines += [f"| `{name}` | {d['rows']} | {len(d['columns'])} | {escape(d['title'])} |"
-                  for name, d in datasets.items()]
+         "Every function and dataset of the Python package.", "", "## Functions", "",
+         "| | |", "| --- | --- |"]
+lines += [f"| [`{e['title']}`](./{e['page']}) | {inline(e['summary'].rstrip('.'), True)} |" for e in index]
+lines += ["", "## Datasets", "", "The datasets of the R package, each loaded with "
+          "[`datasets.load()`](./datasets-load) as a pandas DataFrame.", "", "| | |", "| --- | --- |"]
+lines += [f"| [`{name}`](./{name}) | {escape(d['title'])} |" for name, d in datasets.items()]
 (out / "index.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+# A page per dataset, from the R package's page of the same dataset (made by
+# rd2md.R before this runs): the same data, loaded with datasets.load()
+METHODS = {"clusterFooter": "cluster_footer", "clusterLabel": "cluster_label",
+           "clusterTitle": "cluster_title", "scaleBar": "scale_bar", "trackMouse": "track_mouse"}
+
+
+def python_names(text):
+    def code(match):
+        inner = re.sub(r"GC_chart\(", "GC(", match[1])
+        inner = re.sub(r"GC_(\w+)\(", lambda m: f".{METHODS.get(m[1], m[1])}(", inner)
+        inner = re.sub(r"\s=\s", "=", inner).replace("TRUE", "True").replace("FALSE", "False")
+        return f"`{inner}`"
+    text = re.sub(r"`([^`\n]+)`", code, text)
+    # Links to the R pages of functions: the Python pages
+    text = text.replace("](./GC_chart)", "](./GC)")
+    return re.sub(r"\]\(\./GC_(\w+)\)", lambda m: f"](./GC-{METHODS.get(m[1], m[1])})", text)
+
+
+for name, entry in datasets.items():
+    source = (r_reference / f"{name}.md").read_text(encoding="utf-8")
+    parts = re.split(r"^(?=## )", source, flags=re.M)
+    page = []
+    for part in parts:
+        if part.startswith("## Examples"):
+            continue
+        if part.startswith("## Usage"):
+            part = ("## Usage\n\n```python\nfrom geneviewer import datasets\n\n"
+                    f'{name} = datasets.load("{name}")\n```\n\n')
+        elif part.startswith("## Format"):
+            part = part.replace("A data frame with", "A pandas DataFrame with")
+            part = python_names(part)
+        else:
+            part = python_names(part)
+        page.append(part)
+    (out / f"{name}.md").write_text("".join(page).rstrip() + "\n", encoding="utf-8")
+    index.append({"page": name, "title": name, "group": "Datasets", "summary": entry["title"], "data": True})
+
+for entry in index:
+    entry.setdefault("data", False)
 manifest.write_text(json.dumps(index, indent=1) + "\n", encoding="utf-8")
 
-
-def repo_page(source, target, title_from, links_to):
-    """A Markdown file of the package as a page of the site."""
-    text = (repo / source).read_text(encoding="utf-8")
-    text = re.sub(r"^# .*$", f"# {title_from}", text, count=1, flags=re.M)
-    for name, link in links_to.items():
-        text = text.replace(f"`{name}`", f"[`{name}`]({link})")
-    text = text.replace("{{", "&#123;&#123;")
-    (out.parent / target).write_text(
-        f"<!-- Made by scripts/pydoc2md.py from {source} of geneviewer-py. Edit that. -->\n\n{text}",
-        encoding="utf-8")
-
-
-repo_page("docs/NAMING.md", "naming.md", "Names in Python and R",
-          {"docs/differences.md": "./differences"})
-repo_page("docs/differences.md", "differences.md", "Differences from the R package", {})
+news = (repo / "NEWS.md").read_text(encoding="utf-8")
+news = re.sub(r"^#\s+geneviewer-py\s+", "## ", news, flags=re.M)
+(out.parent / "news.md").write_text(
+    f"# Python package changelog\n\n<div v-pre>\n\n{news.strip()}\n\n</div>\n", encoding="utf-8")
 print(f"python reference: {len(index)} pages")

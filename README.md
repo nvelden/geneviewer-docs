@@ -23,15 +23,29 @@ The guide is one text. Where the languages differ, mark it:
 
 Links can set the language: `/getting-started?lang=r` or `?lang=py`. `npm test` checks that the R names in the text exist in the R package, and the Python names in the Python package.
 
-## The Python of the guide's charts
+## The Python of the charts
 
-Each chart of the guide that shows code has its Python in `python/charts/<id>.py`, written by hand: the R code of the chart in Python. The files run in the order of the guide, after `_setup.py`, so one can use a table an earlier one made. With `geneviewer-py` installed, this checks that each gives the spec recorded from R, that every chart has a file and that no file is left over:
+Each chart of the guide, the examples and "What is geneviewer?" that shows code has its Python in `python/charts/<id>.py`, written by hand: the R code of the chart in Python. The files of the guide run in its order, after `_setup.py`, so one can use a table an earlier one made; the others run on their own. With `geneviewer-py` installed, this checks that each gives the spec recorded from R, that every chart has a file and that no file is left over:
 
 ```sh
 python scripts/check-python-charts.py
 ```
 
 The Pages workflow runs it with the Python package at `PY_REF`. When a chart's R code changes, change its Python too.
+
+## The Python pages
+
+The Python package has the sections of the R package: a reference, a changelog and the same articles.
+
+- The reference (`site/python/reference/`) and the changelog (`site/python/news.md`) are made at build time (`scripts/pydoc2md.py`): a page per function and method from the docstrings, a page per dataset from the R reference's page of that dataset, and the changelog from the package's `NEWS.md`.
+- An article's source is `articles/python/<name>.md`, the R article of that name in Python. Running it writes its page in `site/python/articles/`, committed, so the code on a page is the code that ran. A chart that is the same as the R article's is shown from the R article's file. See the script for the kinds of code block:
+
+  ```sh
+  GENEVIEWER_TUTORIALS_DIR=... python scripts/export-python-articles.py gff
+  ```
+
+  When an R article changes, change its Python article too.
+- `site/python/index.md` and `site/python/shiny.md` are written by hand. A chart on them is `@chart python-<name>`: the page shows the chart and the Python that made it, both from `site/public/charts/python-<name>.json`, written by `python scripts/export-python-charts.py` and committed.
 
 ## After a release
 
@@ -66,23 +80,6 @@ GENEVIEWER_R_DIR=... GENEVIEWER_TUTORIALS_DIR=... Rscript scripts/export-article
 
 Without a name it runs all of them. See the script for what each one needs. A
 new article also goes in the sidebar, in `site/.vitepress/config.mjs`.
-
-## The Python pages
-
-The pages under `site/python/` are written by hand. The reference
-(`site/python/reference/`) and the pages `naming` and `differences` are made at
-build time from the Python package's docstrings and docs
-(`scripts/pydoc2md.py`).
-
-A chart on these pages is `@chart python-<name>`: the page shows the chart and
-the Python that made it. Both come from `site/public/charts/python-<name>.json`,
-written by running the snippets in `scripts/export-python-charts.py` and
-committed. With `geneviewer-py[align]` installed and `GENEVIEWER_PY_DIR` set to
-a checkout of the Python package:
-
-```sh
-python scripts/export-python-charts.py
-```
 
 ## Licence
 

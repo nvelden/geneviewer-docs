@@ -7,7 +7,7 @@ next:
 
 # geneviewer for Python
 
-The Python package builds the same charts as the R package and the JavaScript library, from pandas data frames, and shows them in [Shiny for Python](./shiny). It reads GenBank, GFF, FASTA and BED files and aligns clusters, as the R package does.
+The Python package builds the same charts as the R package and the JavaScript library, from pandas data frames, and shows them in [Shiny for Python](./shiny). It reads GenBank, GFF, FASTA and BED files and aligns clusters, as the R package does: the articles in the sidebar go through each, from [GenBank files](./articles/genbank) to [a published figure](./articles/published-figure).
 
 These pages describe version 0.1.0.
 
@@ -61,7 +61,7 @@ Each method of a chart adds a part or changes one, and returns a new chart, so t
 
 @chart python-methods
 
-The methods are the `GC_` functions of the R package under Python names: `GC_clusterLabel()` is `.cluster_label()`, and its argument `titleFont` is `title_font`. [Names in Python and R](./naming) lists them all, and the [reference](./reference/) describes each method.
+The methods are the `GC_` functions of the R package under Python names: `GC_clusterLabel()` is `.cluster_label()`, and its argument `titleFont` is `title_font`. The [reference](./reference/) describes each method.
 
 The [guide](/getting-started?lang=r) explains every part of a chart with live examples in R and JavaScript. What it says about an R function holds for the Python method of the same name. Options that take a list in R take a dict in Python, with the names the guide uses:
 
@@ -86,4 +86,4 @@ The [reference](./reference/#datasets) lists them. A table of exons and UTRs is 
 
 ## Differences from the R package
 
-The charts are the same: both packages write the same spec, and the Python package is tested against the specs the R package makes. The file readers give the same tables as R's. `protein_blast()` can give slightly different identities for some protein pairs; see [Differences from R](./differences).
+The charts are the same: both packages write the same spec, and the Python package is tested against the specs the R package makes. The file readers give the same tables as R's. `protein_blast()` can give slightly different identities for some protein pairs, where several alignments are equally good.

@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "sources": "bash scripts/fetch-sources.sh",
-    "reference": "Rscript --vanilla scripts/rd2md.R .sources/geneviewer/man site/r/reference site/.vitepress/r-reference.json && node scripts/news.mjs && python3 scripts/pydoc2md.py .sources/geneviewer-py site/python/reference site/.vitepress/python-reference.json",
+    "reference": "Rscript --vanilla scripts/rd2md.R .sources/geneviewer/man site/r/reference site/.vitepress/r-reference.json && node scripts/news.mjs && python3 scripts/pydoc2md.py .sources/geneviewer-py site/python/reference site/.vitepress/python-reference.json site/r/reference",
     "prepare-site": "npm run -s sources && npm run -s reference",
     "build": "npm run -s prepare-site && npm run -s gallery && vitepress build site",
     "dev": "npm run -s prepare-site && npm run -s gallery -- --if-missing && vitepress dev site --host 127.0.0.1 --port 8484",

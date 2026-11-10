@@ -3,8 +3,8 @@ prev:
   text: Getting started
   link: /python/
 next:
-  text: Reading files
-  link: /python/reading-files
+  text: Reference
+  link: /python/reference/
 ---
 
 # Shiny for Python
