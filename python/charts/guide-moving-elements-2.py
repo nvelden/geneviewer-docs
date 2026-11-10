@@ -1,0 +1,11 @@
+(
+    GC(ophA_clusters, cluster="cluster", group="class", height="350px")
+    .labels("name")
+    .cluster_label(title=["O. olearius", "D. bispora"])
+    .scale_bar()
+    .element_style("labels", row_id=3, move_y=-12)
+    .element_style("clusterLabel", cluster=2, part="title", move_x=10)
+    .element_style("scaleBar", cluster=1, move_x=-40)
+    .element_style("legend", group="Methyltransferase", part="marker", move_y=4)
+    .events(select=True, drag=True)
+)

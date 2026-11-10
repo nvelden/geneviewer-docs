@@ -1,5 +1,5 @@
 // The language the guide is read in. The pages hold the text of every language
-// (.lang-js, .lang-r; see "Writing for each language" in the README) and the
+// (.lang-js, .lang-r, .lang-py; see "Writing for each language" in the README) and the
 // attribute on <html> shows one. To add a language, add it here and in custom.css.
 // The version and links of the nav bar and footer follow it (usePageLanguage).
 import { computed, ref } from "vue";
@@ -24,19 +24,16 @@ export const languages = [
     versionLink: "https://CRAN.R-project.org/package=geneviewer",
     versionTitle: `${__R_VERSION__} on CRAN`,
   },
+  {
+    id: "py",
+    label: "Python",
+    repo: "https://github.com/nvelden/geneviewer-py",
+    repoName: "geneviewer-py",
+    version: __PY_VERSION__,
+    versionLink: "https://github.com/nvelden/geneviewer-py",
+    versionTitle: `${__PY_VERSION__}, in development`,
+  },
 ];
-
-// The Python package has its own pages, under /python/; the guide's switch
-// does not have it
-const python = {
-  id: "python",
-  label: "Python",
-  repo: "https://github.com/nvelden/geneviewer-py",
-  repoName: "geneviewer-py",
-  version: __PY_VERSION__,
-  versionLink: "https://github.com/nvelden/geneviewer-py",
-  versionTitle: `${__PY_VERSION__}, in development`,
-};
 
 export const language = ref("js");
 
@@ -45,8 +42,7 @@ export function usePageLanguage() {
   const { page } = useData();
   return computed(() => {
     const path = page.value.relativePath;
-    if (path.startsWith("python/")) return python;
-    const id = path.startsWith("r/") ? "r" : language.value;
+    const id = path.startsWith("python/") ? "py" : path.startsWith("r/") ? "r" : language.value;
     return languages.find((entry) => entry.id === id);
   });
 }
@@ -64,7 +60,7 @@ function syncTabs() {
 
 // A heading of another language has no place in "On this page"
 function syncOutline() {
-  document.querySelectorAll(".vp-doc :is(.lang-js, .lang-r) :is(h2, h3)").forEach((heading) => {
+  document.querySelectorAll(".vp-doc :is(.lang-js, .lang-r, .lang-py) :is(h2, h3)").forEach((heading) => {
     const link = document.querySelector(`.VPDocAsideOutline a[href="#${CSS.escape(heading.id)}"]`);
     if (link) link.parentElement.hidden = heading.offsetParent === null;
   });

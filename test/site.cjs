@@ -168,9 +168,12 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         };
       }));
       const withCode = blocks.filter((block) => block.tabs.length);
-      expect(withCode.every((block) => block.tabs.join() === "JavaScript,R" &&
-        block.code[0].includes("geneviewer.newChart(") && block.code[1].trim().length > 0),
-        `${label}: ${withCode.length} charts show JavaScript and R code`);
+      // The guide's charts also show Python (python/charts/, checked against
+      // the specs by scripts/check-python-charts.py)
+      const wantedTabs = name === "getting-started" ? "JavaScript,R,Python" : "JavaScript,R";
+      expect(withCode.every((block) => block.tabs.join() === wantedTabs &&
+        block.code[0].includes("geneviewer.newChart(") && block.code.slice(1).every((code) => code.trim().length > 0)),
+        `${label}: ${withCode.length} charts show ${wantedTabs.replace(/,/g, ", ")} code`);
       const setup = name === "getting-started"
         ? await page.evaluate(() => [...document.querySelectorAll("pre code")].map((code) => code.textContent)
           .find((text) => text.startsWith("const ophAClusters")))
@@ -266,6 +269,20 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       await lang.waitForTimeout(300);
       const shiny = await lang.locator("#shiny").boundingBox();
       expect(!!shiny && shiny.y >= 0 && shiny.y < 800, "language: a link can set it and go to an R section");
+      // Python: its names in the text, its code tabs, its Shiny section and its repository
+      await lang.goto(`${base}getting-started?lang=py`, { waitUntil: "networkidle" });
+      await lang.waitForTimeout(300);
+      expect(await shown(".element_style()") > 0 && await shown("GC_element_style()") === 0 && await shown("elementStyle") === 0,
+        "language: the text shows the Python names");
+      const tabsPy = await activeTabs();
+      expect(tabsPy.Python > 50 && !tabsPy.R && !tabsPy.JavaScript, `language: every code tab shows Python (${JSON.stringify(tabsPy)})`);
+      expect(await outline("Shiny") === 1, "language: Shiny is in the outline for Python");
+      expect((await navLinks())[1] === "https://github.com/nvelden/geneviewer-py", "language: the nav bar links to the Python repo for Python");
+      await lang.reload({ waitUntil: "networkidle" });
+      expect((await activeTabs()).Python > 50, "language: Python is remembered after a reload");
+      await lang.locator(".gv-language button", { hasText: /^R$/ }).first().click();
+      await lang.waitForTimeout(300);
+      expect((await activeTabs()).R > 50 && await shown("GC_element_style()") > 0, "language: back to R from Python");
       await context.close();
     }
 

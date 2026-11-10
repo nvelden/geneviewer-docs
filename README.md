@@ -18,10 +18,20 @@ npm test          # needs Chrome
 
 The guide is one text. Where the languages differ, mark it:
 
-- In a sentence: ``[[The `grid` key||`GC_grid()`]] sets the grid``, with the JavaScript first and R second. Either can be empty.
-- For whole paragraphs or code: `<div class="lang-r">`, with an empty line after it and before `</div>`. Likewise `lang-js`.
+- In a sentence: ``[[The `grid` key||`GC_grid()`||`.grid()`]] sets the grid``, with the JavaScript first, R second and Python third. Any can be empty; without the third part, Python reads the R text.
+- For whole paragraphs or code: `<div class="lang-r">`, with an empty line after it and before `</div>`. Likewise `lang-js` and `lang-py`.
 
-Links can set the language: `/getting-started?lang=r`. `npm test` checks that the R names in the text exist in the R package.
+Links can set the language: `/getting-started?lang=r` or `?lang=py`. `npm test` checks that the R names in the text exist in the R package, and the Python names in the Python package.
+
+## The Python of the guide's charts
+
+Each chart of the guide that shows code has its Python in `python/charts/<id>.py`, written by hand: the R code of the chart in Python. The files run in the order of the guide, after `_setup.py`, so one can use a table an earlier one made. With `geneviewer-py` installed, this checks that each gives the spec recorded from R, that every chart has a file and that no file is left over:
+
+```sh
+python scripts/check-python-charts.py
+```
+
+The Pages workflow runs it with the Python package at `PY_REF`. When a chart's R code changes, change its Python too.
 
 ## After a release
 

@@ -45,6 +45,7 @@ const pyItems = (group) => pyPages.filter((entry) => entry.group === group)
 const pySidebar = [
   { text: "Python package", items: [
     { text: "Getting started", link: "/python/" },
+    { text: "Guide", link: "/getting-started?lang=py" },
     { text: "Shiny for Python", link: "/python/shiny" },
     { text: "Reading files", link: "/python/reading-files" },
     { text: "Alignment", link: "/python/alignment" },
@@ -69,14 +70,14 @@ export default defineConfig({
   head: [
     ["link", { rel: "icon", href: `${base}favicon.ico` }],
     // The language before the page is drawn, so its text does not change on screen.
-    // ?lang=r in a link sets it and is remembered.
+    // ?lang=r or ?lang=py in a link sets it and is remembered.
     ["script", {}, `(function () {
       var wanted = new URLSearchParams(location.search).get("lang"), saved = null;
       try {
         saved = localStorage.getItem("geneviewer-language");
-        if (wanted === "js" || wanted === "r") localStorage.setItem("geneviewer-language", wanted);
+        if (wanted === "js" || wanted === "r" || wanted === "py") localStorage.setItem("geneviewer-language", wanted);
       } catch (e) {}
-      document.documentElement.dataset.lang = wanted === "js" || wanted === "r" ? wanted : saved === "r" ? "r" : "js";
+      document.documentElement.dataset.lang = wanted === "js" || wanted === "r" || wanted === "py" ? wanted : saved === "r" || saved === "py" ? saved : "js";
     })();`],
   ],
   markdown: {

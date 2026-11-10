@@ -2,13 +2,20 @@
 // @examples, @api) become a live chart with its code in tabs. The JavaScript
 // is made from the chart's spec, recorded from R (scripts/export-examples.R),
 // so what a page shows is what the chart draws.
-import { mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { referenceHtml } from "../../scripts/build-reference.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const chartsDir = join(here, "../public/charts");
+// The Python of a chart of the guide, written by hand and checked against the
+// chart's spec (scripts/check-python-charts.py)
+const pythonDir = join(here, "../../python/charts");
+const pythonCode = (id) => {
+  const file = join(pythonDir, `${id}.py`);
+  return existsSync(file) ? readFileSync(file, "utf8").trim() : null;
+};
 const SITE = "https://nvelden.github.io/geneviewer-docs";
 // R's data frames as a table of rows, inline, up to this many rows
 const INLINE_ROWS = 8;
@@ -122,7 +129,9 @@ function chartMarkdown(id, flags = []) {
   if (flags.includes("nocode")) return element;
   // A chart of the Python pages (scripts/export-python-charts.py): its own code
   if (chart.language === "python") return `${element}\n\n${fence("python", "Python", chart.code).replace(" [Python]", "")}`;
-  const tabs = `::: code-group\n${fence("js", "JavaScript", javascript(chart).code)}\n\n${fence("r", "R", chart.code.trim())}\n:::`;
+  const python = pythonCode(id);
+  const tabs = `::: code-group\n${fence("js", "JavaScript", javascript(chart).code)}\n\n${fence("r", "R", chart.code.trim())}` +
+    `${python ? `\n\n${fence("python", "Python", python)}` : ""}\n:::`;
   if (flags.includes("fold")) {
     return `${element}\n\n<details class="gv-code"><summary>Show the code</summary>\n\n${tabs}\n\n</details>`;
   }
@@ -175,12 +184,20 @@ function tablesMarkdown() {
     "```";
 }
 
-// Text that differs by language, in a sentence: [[JavaScript||R]]. Either can be
-// empty, and it can hold Markdown. Run first, so that it works in tables, and
-// so that it leaves the code of the charts alone.
+// Text that differs by language, in a sentence: [[JavaScript||R||Python]]. Any
+// can be empty, and it can hold Markdown. Without the third part, Python reads
+// the R text. Run first, so that it works in tables, and so that it leaves the
+// code of the charts alone.
 function languageText(source) {
-  return source.replace(/\[\[(.*?)\|\|(.*?)\]\]/g,
-    (_, js, r) => `<span class="lang-js">${js}</span><span class="lang-r">${r}</span>`);
+  return source.replace(/\[\[(.*?)\|\|(.*?)\]\]/g, (_, js, rest) => {
+    const [r, py = r] = rest.split("||");
+    return `<span class="lang-js">${js}</span><span class="lang-r">${r}</span><span class="lang-py">${py}</span>`;
+  });
+}
+
+// The tables the Python of the guide's charts starts from
+function pythonSetupMarkdown() {
+  return "```python\n" + readFileSync(join(pythonDir, "_setup.py"), "utf8").trim() + "\n```";
 }
 
 /** Replace the markers in a page's source. */
@@ -188,6 +205,7 @@ export function expand(source) {
   return languageText(source)
     .replace(/^@chart ([\w-]+)((?: \w+)*)$/gm, (_, id, flags) => chartMarkdown(id, flags.trim().split(" ")))
     .replace(/^@tables$/m, () => tablesMarkdown())
+    .replace(/^@python-setup$/m, () => pythonSetupMarkdown())
     .replace(/^@examples$/m, () => examplesMarkdown())
     .replace(/^@api$/m, () => referenceMarkdown());
 }

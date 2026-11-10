@@ -118,6 +118,8 @@
 
 /* The text of one language (see language.js). Without a choice, JavaScript. */
 html:not([data-lang="r"]) .lang-r,
-html[data-lang="r"] .lang-js {
+html:not([data-lang="py"]) .lang-py,
+html[data-lang="r"] .lang-js,
+html[data-lang="py"] .lang-js {
   display: none;
 }
