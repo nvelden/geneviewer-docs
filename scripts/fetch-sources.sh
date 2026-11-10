@@ -7,7 +7,7 @@ cd "$(dirname "$0")/.."
 
 # The R package's docs to show. Set to the release tag at each R release, and
 # rVersion in site/.vitepress/config.mjs to its version.
-R_REF="m6-js-library"
+R_REF="main"
 
 fetch() { # repo, ref, paths...
   local repo=$1 ref=$2 dir=".sources/$1"
