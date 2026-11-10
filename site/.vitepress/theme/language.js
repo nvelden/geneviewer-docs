@@ -26,13 +26,27 @@ export const languages = [
   },
 ];
 
+// The Python package has its own pages, under /python/; the guide's switch
+// does not have it
+const python = {
+  id: "python",
+  label: "Python",
+  repo: "https://github.com/nvelden/geneviewer-py",
+  repoName: "geneviewer-py",
+  version: __PY_VERSION__,
+  versionLink: "https://github.com/nvelden/geneviewer-py",
+  versionTitle: `${__PY_VERSION__}, in development`,
+};
+
 export const language = ref("js");
 
-/** The language the links of a page are for: the pages under /r/ are about the R package, whatever the switch says. */
+/** The language the links of a page are for: the pages under /r/ and /python/ are about that package, whatever the switch says. */
 export function usePageLanguage() {
   const { page } = useData();
   return computed(() => {
-    const id = page.value.relativePath.startsWith("r/") ? "r" : language.value;
+    const path = page.value.relativePath;
+    if (path.startsWith("python/")) return python;
+    const id = path.startsWith("r/") ? "r" : language.value;
     return languages.find((entry) => entry.id === id);
   });
 }

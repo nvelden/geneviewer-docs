@@ -1,0 +1,122 @@
+{
+ "id": "python-theme",
+ "language": "python",
+ "code": "chart = (\n    GC(clusters, cluster=\"cluster\", group=\"class\", height=\"260px\")\n    .labels(\"name\", font_size=\"11px\")\n    .genes(marker=\"boxarrow\", marker_size=\"small\")\n    .theme(\"vintage\")\n)",
+ "height": "260px",
+ "spec": {
+  "version": 1,
+  "data": {
+   "name": [
+    "ophB1",
+    "ophC",
+    "ophA",
+    "ophD",
+    "ophB2",
+    "ophP",
+    "ophE",
+    "dbophB1",
+    "dbophB2",
+    "dbophC",
+    "dbophD1",
+    "dbophB3",
+    "dbophA",
+    "dbophD2",
+    "dbophB4",
+    "dbophP",
+    "dbophE"
+   ],
+   "start": [
+    2522.0,
+    5286.0,
+    9536.0,
+    12616.0,
+    13183.0,
+    19346.0,
+    20170.0,
+    40768.0,
+    38089.0,
+    37262.0,
+    34955.0,
+    32392.0,
+    28937.0,
+    27371.0,
+    25288.0,
+    21283.0,
+    19236.0
+   ],
+   "end": [
+    4276.0,
+    4718.0,
+    10904.0,
+    11859.0,
+    15046.0,
+    16016.0,
+    21484.0,
+    43005.0,
+    40469.0,
+    37791.0,
+    36331.0,
+    34679.0,
+    30516.0,
+    28885.0,
+    27217.0,
+    24607.0,
+    20583.0
+   ],
+   "class": [
+    "Monooxygenase",
+    "NTF2-like",
+    "Methyltransferase",
+    "O-acyltransferase",
+    "Monooxygenase",
+    "Prolyloligopeptidase",
+    "F-box/RNHI-like",
+    "Monooxygenase",
+    "Monooxygenase",
+    "NTF2-like",
+    "O-acyltransferase",
+    "Monooxygenase",
+    "Methyltransferase",
+    "O-acyltransferase",
+    "Monooxygenase",
+    "Prolyloligopeptidase",
+    "F-box/RNHI-like"
+   ],
+   "cluster": [
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA",
+    "dbophA",
+    "dbophA",
+    "dbophA",
+    "dbophA",
+    "dbophA",
+    "dbophA",
+    "dbophA",
+    "dbophA",
+    "dbophA",
+    "dbophA"
+   ]
+  },
+  "fields": {
+   "cluster": "cluster",
+   "group": "class"
+  },
+  "height": "260px",
+  "labels": {
+   "label": "name",
+   "fontSize": "11px"
+  },
+  "genes": {
+   "marker": "boxarrow",
+   "markerSize": "small"
+  },
+  "theme": {
+   "base": "vintage"
+  }
+ }
+}

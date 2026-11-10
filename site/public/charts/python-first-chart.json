@@ -1,0 +1,60 @@
+{
+ "id": "python-first-chart",
+ "language": "python",
+ "code": "from geneviewer import GC, datasets\n\nclusters = datasets.load(\"ophA_clusters\")\nophA = clusters[clusters[\"cluster\"] == \"ophA\"]\n\nchart = GC(ophA, group=\"class\", height=\"150px\")",
+ "height": "150px",
+ "spec": {
+  "version": 1,
+  "data": {
+   "name": [
+    "ophB1",
+    "ophC",
+    "ophA",
+    "ophD",
+    "ophB2",
+    "ophP",
+    "ophE"
+   ],
+   "start": [
+    2522.0,
+    5286.0,
+    9536.0,
+    12616.0,
+    13183.0,
+    19346.0,
+    20170.0
+   ],
+   "end": [
+    4276.0,
+    4718.0,
+    10904.0,
+    11859.0,
+    15046.0,
+    16016.0,
+    21484.0
+   ],
+   "class": [
+    "Monooxygenase",
+    "NTF2-like",
+    "Methyltransferase",
+    "O-acyltransferase",
+    "Monooxygenase",
+    "Prolyloligopeptidase",
+    "F-box/RNHI-like"
+   ],
+   "cluster": [
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA",
+    "ophA"
+   ]
+  },
+  "fields": {
+   "group": "class"
+  },
+  "height": "150px"
+ }
+}

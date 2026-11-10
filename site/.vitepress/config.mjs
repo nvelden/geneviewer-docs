@@ -7,6 +7,9 @@ const { version } = JSON.parse(readFileSync(new URL("../../node_modules/geneview
 // The R package's version on CRAN, shown in the nav bar. Set at each R release,
 // with R_REF in scripts/fetch-sources.sh.
 const rVersion = "0.2.0";
+// The Python package's version, shown in the nav bar. Set at each Python
+// release, with PY_REF in scripts/fetch-sources.sh.
+const pyVersion = "0.1.0.dev0";
 const base = "/geneviewer-docs/";
 const dashboard = "https://nvelden.github.io/geneviewer-shinylive/";
 
@@ -35,11 +38,29 @@ const rSidebar = [
   { text: "Datasets", collapsed: true, items: rItems(true) },
 ];
 
+// The Python reference is made at build time (scripts/pydoc2md.py)
+const pyPages = JSON.parse(readFileSync(new URL("./python-reference.json", import.meta.url), "utf8"));
+const pyItems = (group) => pyPages.filter((entry) => entry.group === group)
+  .map((entry) => ({ text: entry.title, link: `/python/reference/${entry.page}` }));
+const pySidebar = [
+  { text: "Python package", items: [
+    { text: "Getting started", link: "/python/" },
+    { text: "Shiny for Python", link: "/python/shiny" },
+    { text: "Reading files", link: "/python/reading-files" },
+    { text: "Alignment", link: "/python/alignment" },
+    { text: "Names in Python and R", link: "/python/naming" },
+    { text: "Differences from R", link: "/python/differences" },
+    { text: "Reference", link: "/python/reference/" },
+  ] },
+  ...["Chart", "Shiny", "Files", "Alignment", "Themes", "Datasets"].map((group) => (
+    { text: group, collapsed: group !== "Chart", items: pyItems(group) })),
+];
+
 const guide = (text, hash) => ({ text, link: `/getting-started#${hash}` });
 
 export default defineConfig({
   title: "geneviewer",
-  description: "Interactive gene cluster, transcript and genome alignment charts for JavaScript and R",
+  description: "Interactive gene cluster, transcript and genome alignment charts for JavaScript, R and Python",
   base,
   outDir: "../_site",
   appearance: "force-auto",
@@ -71,7 +92,7 @@ export default defineConfig({
         { find: /^.*\/VPFooter\.vue$/, replacement: fileURLToPath(new URL("./theme/SiteFooter.vue", import.meta.url)) },
       ],
     },
-    define: { __APP_VERSION__: JSON.stringify(version), __R_VERSION__: JSON.stringify(rVersion) },
+    define: { __APP_VERSION__: JSON.stringify(version), __R_VERSION__: JSON.stringify(rVersion), __PY_VERSION__: JSON.stringify(pyVersion) },
   },
   buildEnd(site) {
     writeDataFiles(site.outDir);
@@ -84,9 +105,10 @@ export default defineConfig({
     nav: [
       { text: "Guide", link: "/getting-started", activeMatch: "^/(getting-started|what-is-geneviewer|examples|api)" },
       { text: "R package", link: "/r/reference/", activeMatch: "^/r/" },
+      { text: "Python package", link: "/python/", activeMatch: "^/python/" },
       { text: "Dashboard", link: dashboard },
     ],
-    sidebar: { "/r/": rSidebar, "/": [
+    sidebar: { "/r/": rSidebar, "/python/": pySidebar, "/": [
       {
         text: "Introduction",
         items: [

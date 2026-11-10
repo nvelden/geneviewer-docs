@@ -120,6 +120,8 @@ function chartMarkdown(id, flags = []) {
   const width = chart.width && chart.width !== "100%" ? ` width="${chart.width}"` : "";
   const element = `<GvChart id="${id}" height="${height}"${width}${flags.includes("log") ? " log" : ""} />`;
   if (flags.includes("nocode")) return element;
+  // A chart of the Python pages (scripts/export-python-charts.py): its own code
+  if (chart.language === "python") return `${element}\n\n${fence("python", "Python", chart.code).replace(" [Python]", "")}`;
   const tabs = `::: code-group\n${fence("js", "JavaScript", javascript(chart).code)}\n\n${fence("r", "R", chart.code.trim())}\n:::`;
   if (flags.includes("fold")) {
     return `${element}\n\n<details class="gv-code"><summary>Show the code</summary>\n\n${tabs}\n\n</details>`;
@@ -194,8 +196,8 @@ export function expand(source) {
 export function writeDataFiles(outDir) {
   const dir = join(outDir, "charts/data");
   mkdirSync(dir, { recursive: true });
-  // The articles show R only
-  for (const file of readdirSync(chartsDir).filter((name) => !name.startsWith("article-"))) {
+  // The articles show R only, and the Python pages Python only
+  for (const file of readdirSync(chartsDir).filter((name) => !/^(article|python)-/.test(name))) {
     const { tables } = javascript(JSON.parse(readFileSync(join(chartsDir, file), "utf8")));
     if (Object.keys(tables).length) writeFileSync(join(dir, file), JSON.stringify(tables));
   }

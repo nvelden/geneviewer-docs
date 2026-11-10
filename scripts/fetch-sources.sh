@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
-# What the site reads from another repo, into .sources/: the man pages and NEWS
-# of the R package. Public, so no token is needed.
+# What the site reads from other repos, into .sources/: the man pages and NEWS
+# of the R package, and the sources and docs of the Python package. Public, so
+# no token is needed.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -18,4 +19,10 @@ fetch() { # repo, ref, paths...
   echo "$repo at $ref"
 }
 
+# The Python package's docs to show. Set to the release tag at each Python
+# release, and pyVersion in site/.vitepress/config.mjs to its version.
+PY_REF="m7-8-datasets"
+
 fetch geneviewer "$R_REF" /man/ /NEWS.md
+fetch geneviewer-py "$PY_REF" /README.md /docs/NAMING.md /docs/differences.md \
+  '/src/geneviewer/*.py' '/src/geneviewer/*/*.py' /src/geneviewer/datasets/datasets.json

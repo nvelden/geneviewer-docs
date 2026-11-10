@@ -75,7 +75,8 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       }, { code, size });
     };
 
-    for (const name of ["", "what-is-geneviewer", "getting-started", "examples", ...fs.readdirSync(path.join(__dirname, "..", "articles")).filter((file) => file.endsWith(".Rmd")).map((file) => `r/articles/${file.replace(".Rmd", "")}`)]) {
+    for (const name of ["", "what-is-geneviewer", "getting-started", "examples", ...fs.readdirSync(path.join(__dirname, "..", "articles")).filter((file) => file.endsWith(".Rmd")).map((file) => `r/articles/${file.replace(".Rmd", "")}`),
+      "python/", "python/reading-files", "python/alignment"]) {
       const label = name || "home";
       const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
       const errors = [];
@@ -186,6 +187,13 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         (wrong.length ? ` (${wrong.slice(0, 8).join("; ")})` : ""));
       await runner.close();
 
+      if (name.startsWith("python/")) {
+        // A chart of the Python pages shows the Python that made it
+        const shown = await page.evaluate(() => [...document.querySelectorAll(".gv-figure")].map((figure) =>
+          (figure.nextElementSibling?.classList.contains("language-python") && figure.nextElementSibling.textContent.includes("chart = ")) || figure.dataset.chart));
+        expect(shown.every((value) => value === true), `${label}: ${shown.length} charts show their Python code` +
+          (shown.every((value) => value === true) ? "" : ` (not: ${shown.filter((value) => value !== true).join(", ")})`));
+      }
       if (name === "examples") {
         // The sections of the R package's Examples page, all there
         const sections = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "site", ".vitepress", "examples.json"), "utf8"));
@@ -259,6 +267,22 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       const shiny = await lang.locator("#shiny").boundingBox();
       expect(!!shiny && shiny.y >= 0 && shiny.y < 800, "language: a link can set it and go to an R section");
       await context.close();
+    }
+
+    // The Python reference: a page for every public name of the package, and
+    // the nav bar shows the Python package's version and repository there
+    {
+      const py = await browser.newPage({ viewport: { width: 1200, height: 900 } });
+      await py.goto(`${base}python/reference/`, { waitUntil: "networkidle" });
+      const names = await py.evaluate(() => [...document.querySelectorAll(".vp-doc td a code")].map((code) => code.textContent));
+      expect(names.length >= 40 && ["GC()", "GC.links()", "read_gbk()", "protein_blast()", "zoom_to()", "datasets.load()"].every((name) => names.includes(name)),
+        `python reference: lists ${names.length} functions and methods`);
+      const repo = await py.evaluate(() => document.querySelector(".gv-nav-links a:last-child").href);
+      expect(repo === "https://github.com/nvelden/geneviewer-py", `python reference: the nav bar links to the Python repository (${repo})`);
+      await py.goto(`${base}python/reference/GC-links`, { waitUntil: "networkidle" });
+      const rows = await py.evaluate(() => document.querySelectorAll(".vp-doc table tr").length);
+      expect(rows > 10, `python reference: GC.links() has its arguments (${rows} rows)`);
+      await py.close();
     }
 
     // Every internal link to a section finds it. Checked in the built HTML:
