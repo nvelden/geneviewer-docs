@@ -1,10 +1,10 @@
 ---
 layout: home
-titleTemplate: "Interactive gene cluster charts for JavaScript and R"
+titleTemplate: "Interactive gene cluster charts for JavaScript, R and Python"
 
 hero:
   name: "geneviewer"
-  text: "Interactive gene cluster charts for JavaScript and R"
+  text: "Interactive gene cluster charts for JavaScript, R and Python"
   tagline: Draw gene clusters, transcripts and genome alignments in the browser with D3
   image:
     src: /logo.png

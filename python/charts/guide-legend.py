@@ -1,0 +1,21 @@
+GC(ophA_clusters, group="class", cluster="cluster", height="200px").legend(
+    show=True,
+    position="bottom",
+    orientation="horizontal",
+    x=0,
+    y=0,
+    margin={"top": 0, "left": 50, "bottom": 0, "right": 50},
+    adjust_height=True,
+    order=[],
+    style={},
+    positions="bottom",
+    legend_options={"cursor": "pointer", "colorScheme": None, "customColors": None},
+    legend_text_options={
+        "cursor": "pointer",
+        "textAnchor": "start",
+        "dy": ".35em",
+        "fontSize": "12px",
+        "fontFamily": "sans-serif",
+        "fill": "black",
+    },
+)

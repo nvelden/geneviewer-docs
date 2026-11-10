@@ -32,7 +32,7 @@ const check = (page, text) => {
 
 for (const page of ["getting-started", "what-is-geneviewer", "api"]) {
   const source = readFileSync(`site/${page}.md`, "utf8");
-  for (const [, , r] of source.matchAll(/\[\[(.*?)\|\|(.*?)\]\]/g)) check(page, r);
+  for (const [, , rest] of source.matchAll(/\[\[(.*?)\|\|(.*?)\]\]/g)) check(page, rest.split("||")[0]);
   const blocks = source.matchAll(/<div class="lang-r">([\s\S]*?)<\/div>/g);
   for (const [, block] of blocks) check(page, block.replace(/```[\s\S]*?```/g, ""));
 }
@@ -74,7 +74,37 @@ for (const page of ["getting-started", "what-is-geneviewer"]) {
   for (const [, block] of source.matchAll(/<div class="lang-js">([\s\S]*?)<\/div>/g)) checkJs(page, block.replace(/```[\s\S]*?```/g, ""));
 }
 
+// Python: the methods and functions of the reference (made from the package's
+// docstrings; npm run reference), their arguments, and the camelCase options
+// R has under the same name
+const pyKnown = new Set(["GC", "input", "chart", "datasets", "True", "False", "None", "rowID", "pip", "app", "shiny", "ophA_clusters"]);
+for (const entry of JSON.parse(readFileSync("site/.vitepress/python-reference.json", "utf8"))) {
+  for (const name of entry.title.replace("()", "").split(".")) pyKnown.add(name);
+  const page = readFileSync(`site/python/reference/${entry.page}.md`, "utf8");
+  for (const [, name] of page.matchAll(/`\*{0,2}([A-Za-z_]\w*)/g)) pyKnown.add(name);
+}
+const snake = (name) => name.replace(/([a-z0-9])([A-Z]+)/g, "$1_$2").toLowerCase();
+for (const name of known) pyKnown.add(snake(name));
+const pyMissing = [];
+let pyChecked = 0;
+const checkPy = (page, text) => {
+  for (const [, code] of text.matchAll(/`([^`\n]+)`/g)) {
+    if (code.startsWith("geneviewer:") || /^["'\d<#@]/.test(code)) continue;
+    const name = code.match(/^\.?([A-Za-z_]\w*)/)?.[1];
+    if (!name) continue;
+    pyChecked += 1;
+    if (/^GC_/.test(name) || (!pyKnown.has(name) && !other.has(name))) pyMissing.push(`${page}: ${code}`);
+  }
+};
+for (const page of ["getting-started", "what-is-geneviewer"]) {
+  const source = readFileSync(`site/${page}.md`, "utf8");
+  for (const [, , rest] of source.matchAll(/\[\[(.*?)\|\|(.*?)\]\]/g)) checkPy(page, rest.split("||")[1] ?? "");
+  for (const [, block] of source.matchAll(/<div class="lang-py">([\s\S]*?)<\/div>/g)) checkPy(page, block.replace(/```[\s\S]*?```/g, ""));
+}
+if (pyMissing.length) console.error(`Python names in the guide that the Python package does not have:\n  ${pyMissing.join("\n  ")}`);
+if (pyMissing.length) process.exitCode = 1;
+
 if (missing.length) console.error(`R names in the guide that the R package does not have:\n  ${missing.join("\n  ")}`);
 if (jsMissing.length) console.error(`JavaScript names in the guide that the library does not have:\n  ${jsMissing.join("\n  ")}`);
 if (missing.length || jsMissing.length) process.exit(1);
-console.log(`guide names: ${checked} R names found in the R package, ${jsChecked} JavaScript names in the library`);
+if (!process.exitCode) console.log(`guide names: ${checked} R names found in the R package, ${jsChecked} JavaScript names in the library, ${pyChecked} Python names in the Python package`);

@@ -7,11 +7,11 @@ next:
 
 # What is geneviewer?
 
-**geneviewer draws gene clusters, transcripts and genome alignments in the browser, from JavaScript or R.** You give it a table of genes and say what to draw. It gives you an interactive SVG chart that you can zoom, rearrange and save as a figure.
+**geneviewer draws gene clusters, transcripts and genome alignments in the browser, from JavaScript, R or Python.** You give it a table of genes and say what to draw. It gives you an interactive SVG chart that you can zoom, rearrange and save as a figure.
 
 @chart interactive log
 
-Hover a gene for its tooltip, drag the slider below the clusters to zoom, or click a gene to select it. The box under the chart lists the events [[your page||a page or app]] would receive.
+Hover a gene for its tooltip, drag the slider below the clusters to zoom, or click a gene to select it. The box under the chart lists the events [[your page||a page or app||a page or app]] would receive.
 
 ## One spec, one chart
 
@@ -28,6 +28,24 @@ GC_chart(ophA_clusters, group = "class", cluster = "cluster") %>%
 ```
 
 These calls build a *spec*, the plain description of the chart that the JavaScript library draws, so a chart looks and behaves the same from either language.
+
+</div>
+
+<div class="lang-py">
+
+In Python, `GC()` starts a chart from a pandas DataFrame and each method adds a part to it:
+
+```python
+(
+    GC(ophA_clusters, group="class", cluster="cluster")
+    .labels("name")
+    .links("class", measure="identity")
+    .legend(position="top")
+    .theme("publication")
+)
+```
+
+These calls build a *spec*, the plain description of the chart that the JavaScript library draws, so a chart looks and behaves the same from any of the languages.
 
 </div>
 
@@ -75,6 +93,12 @@ The drawing is done by the JavaScript library. The R package does the work befor
 
 </div>
 
+<div class="lang-py">
+
+The drawing is done by the JavaScript library. The Python package does the work before it: it reads the files, runs the alignments and hands the library a spec. See [Reading files](/python/reading-files) and [Alignment](/python/alignment).
+
+</div>
+
 geneviewer is not a genome browser. It has no reference tracks and does not load data as you scroll. It is made for the region you want to show, from a few genes to a set of whole plasmids.
 
 ## Languages and tools
@@ -84,8 +108,8 @@ The same charts can be made in several ways:
 - **JavaScript:** the `geneviewer-js` library, from npm or a CDN.
 - **R:** the [geneviewer package](/r/reference/) builds charts from data frames and from GenBank, GFF, FASTA and BED files. Version 0.3.0, in development, draws them with the JavaScript library. The R code next to each chart on this site is for that version.
 - **In the browser, without code:** the [Gene Cluster Dashboard](https://nvelden.github.io/geneviewer-shinylive/) loads CSV, GenBank and FASTA files and lets you design a chart by point and click.
-- **Python:** a package for Jupyter and Shiny for Python is planned, built on the same library. See the [roadmap](https://github.com/nvelden/geneviewer-js/blob/main/docs/roadmap.md).
+- **Python:** the [geneviewer-py package](/python/) builds the same charts from pandas DataFrames and from GenBank, GFF, FASTA and BED files, and shows them in Shiny for Python.
 
 ## Built on D3
 
-geneviewer draws with [D3](https://d3js.org), and D3 is included in the script tag build. The colour schemes, number formats and symbols of D3 can be used by name, such as [[`colorScheme: "schemeSet2"` or `ticksFormat: ".2s"`||`colorScheme = "schemeSet2"` or `ticksFormat = ".2s"`]]. You do not need to know D3 to use geneviewer.
+geneviewer draws with [D3](https://d3js.org), and D3 is included in the script tag build. The colour schemes, number formats and symbols of D3 can be used by name, such as [[`colorScheme: "schemeSet2"` or `ticksFormat: ".2s"`||`colorScheme = "schemeSet2"` or `ticksFormat = ".2s"`||`color_scheme="schemeSet2"` or `ticks_format=".2s"`]]. You do not need to know D3 to use geneviewer.

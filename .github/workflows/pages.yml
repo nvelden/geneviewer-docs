@@ -37,6 +37,14 @@ jobs:
       - run: npm test
         env:
           GENEVIEWER_CHROME: 1
+      # The Python shown with the guide's charts gives each chart's spec
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - run: |
+          ref=$(sed -n 's/^PY_REF="\(.*\)"$/\1/p' scripts/fetch-sources.sh)
+          pip install "geneviewer-py @ git+https://github.com/nvelden/geneviewer-py@${ref}"
+          python scripts/check-python-charts.py
       - uses: actions/upload-pages-artifact@v5
         with:
           path: _site

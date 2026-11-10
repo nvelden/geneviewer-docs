@@ -9,7 +9,7 @@ next:
 
 # Getting started
 
-Every chart on this page is drawn live from the code below it. Use the switch at the top of the page to read this guide for JavaScript or R: the code tabs and the names in the text follow it.
+Every chart on this page is drawn live from the code below it. Use the switch at the top of the page to read this guide for JavaScript, R or Python: the code tabs and the names in the text follow it.
 
 ## Installation
 
@@ -29,6 +29,18 @@ devtools::install_github("nvelden/geneviewer")
 ```
 
 The R code on this site is for version 0.3.0, which is in development.
+
+</div>
+
+<div class="lang-py">
+
+Install **geneviewer-py** from PyPI, with the extra for Shiny for Python, which shows the charts:
+
+```sh
+pip install "geneviewer-py[shiny]"
+```
+
+The import name is `geneviewer`. The [Python pages](/python/) have more on installing, on Shiny, on reading files and on alignment.
 
 </div>
 
@@ -88,6 +100,23 @@ GC_chart(ophA_cluster, group = "class", height = "150px")
 
 </div>
 
+<div class="lang-py">
+
+`GC()` makes a chart from a table of genes, a pandas DataFrame. This uses the `ophA_clusters` dataset of the package:
+
+```python
+from geneviewer import GC, datasets
+
+ophA_clusters = datasets.load("ophA_clusters")
+ophA_cluster = ophA_clusters[ophA_clusters["cluster"] == "ophA"]
+
+GC(ophA_cluster, group="class", height="150px")
+```
+
+A chart is shown by a [Shiny for Python](#shiny-py) app.
+
+</div>
+
 <div class="lang-js">
 
 A chart is drawn into an element, which sets its size, from a spec: the data and what to draw. Copy this into an HTML file and open it:
@@ -119,7 +148,7 @@ A chart is drawn into an element, which sets its size, from a spec: the data and
 
 ## Data and fields
 
-[[`data` is the gene table: an array of rows, as above, or an object of columns (`{ start: [...], end: [...] }`). `fields` names the columns the chart uses:||The first argument of `GC_chart()` is the gene table, a data frame. Its other arguments name the columns the chart uses:]]
+[[`data` is the gene table: an array of rows, as above, or an object of columns (`{ start: [...], end: [...] }`). `fields` names the columns the chart uses:||The first argument of `GC_chart()` is the gene table, a data frame. Its other arguments name the columns the chart uses:||The first argument of `GC()` is the gene table, a pandas DataFrame. Its other arguments name the columns the chart uses:]]
 
 - `start` and `end`: the gene's positions (default: the columns `start` and `end`). A gene whose start is after its end is on the reverse strand.
 - `cluster`: which cluster a gene is in. Without it, all genes are one cluster.
@@ -142,6 +171,14 @@ The charts below use `ophA_clusters`, a dataset of the package: the omphalotin g
 
 </div>
 
+<div class="lang-py">
+
+The charts below use `ophA_clusters`, a dataset of the package: the omphalotin gene clusters of two fungi. The code of the charts starts from these lines, and runs from top to bottom: a chart can use a table an earlier one made.
+
+@python-setup
+
+</div>
+
 ## Cluster visualization
 
 ### Single gene cluster
@@ -152,13 +189,13 @@ The minimum is the start and end of each gene. A `group` column is used for the 
 
 ### Multiple gene clusters
 
-For several clusters, name the column that tells them apart in [[`fields.cluster`||`cluster`]]. Clusters share the height of the [[element||chart]], so here each of the two gets 150px.
+For several clusters, name the column that tells them apart in [[`fields.cluster`||`cluster`||`cluster`]]. Clusters share the height of the [[element||chart||chart]], so here each of the two gets 150px.
 
 @chart guide-multiple-gene-clusters
 
 ### Styling
 
-[[The `style` key||The `style` argument of `GC_chart()`]] takes CSS for the chart as a whole. The other parts of the chart each have their own options, shown below.
+[[The `style` key||The `style` argument of `GC_chart()`||The `style` argument of `GC()`]] takes CSS for the chart as a whole. The other parts of the chart each have their own options, shown below.
 
 @chart guide-styling
 
@@ -205,6 +242,54 @@ shinyApp(ui = ui, server = server)
 
 </div>
 
+<div class="lang-py">
+
+Each method returns a new chart with its settings changed, so call another one to change a chart:
+
+```python
+chart = GC(ophA_clusters, group="class", cluster="cluster", height="300px")
+
+chart.title("OphA clusters").theme("dark")
+```
+
+## Shiny {#shiny-py}
+
+`output_geneviewer()` and `@render_geneviewer` show charts in Shiny for Python apps. Save this as `app.py` and run `shiny run app.py`:
+
+```python
+from shiny import App, ui
+
+from geneviewer import GC, datasets
+from geneviewer.shiny import output_geneviewer, render_geneviewer
+
+ophA_clusters = datasets.load("ophA_clusters")
+
+app_ui = ui.page_fluid(
+    ui.panel_title("Omphalotin gene clusters"),
+    output_geneviewer("chart", width="100%", height="400px"),
+)
+
+
+def server(input, output, session):
+    @render_geneviewer
+    def chart():
+        return (
+            GC(ophA_clusters, cluster="cluster", group="class")
+            .cluster_title(title=["<i>O. olearius</i>", "<i>D. bispora</i>"])
+            .labels("name")
+            .legend(position="bottom")
+            .scale_bar()
+            .cluster_label(title="ophA")
+        )
+
+
+app = App(app_ui, server)
+```
+
+[Shiny for Python](/python/shiny) has more.
+
+</div>
+
 <div class="lang-js">
 
 `update()` merges a partial spec into the chart's spec and draws again. Tables (`data`, `links.data`) are replaced whole. `setSpec()` replaces the spec, and `getSpec()` returns it.
@@ -221,17 +306,17 @@ Call `chart.resize()` when the element changes size, and `chart.destroy()` to re
 
 ## Events
 
-Charts report what the mouse does when you ask for it with [[the `events` key||`GC_events()`]]. Each kind of interaction has its own [[option||argument]]:
+Charts report what the mouse does when you ask for it with [[the `events` key||`GC_events()`||`.events()`]]. Each kind of interaction has its own [[option||argument||argument]]:
 
-| [[Option||Argument]] | What it does |
+| [[Option||Argument||Argument]] | What it does |
 |---|---|
-| `click` | Reports a click[[|| to Shiny in `input$<outputId>_click`]]: the part of the chart (`"genes"`, `"labels"`, `"links"`, `"scale"`, `"clusterTitle"`, ...), its cluster and the data of the clicked gene, link or legend group. |
-| `select` | A click selects a gene, label, coordinate, legend label or marker, the scale, or the title or subtitle of a cluster title, footer or label, and outlines it. Shift-, Ctrl- or Cmd-click and a box drawn on empty space select several. A click elsewhere or Escape ends the selection.[[|| Reported in `input$<outputId>_select` (the element selected last) and `input$<outputId>_selection` (all of them).]] |
-| `drag` | Elements can be moved with the mouse and the arrow keys, and moves undone. See [Moving elements](#moving-elements).[[|| Reported in `input$<outputId>_drag` and `input$<outputId>_moves`.]] |
-| `zoom` | Reports the window of the zoom slider[[|| in `input$<outputId>_zoom`]]. See [Zoom](#zoom). |
-| `dblclick` | Reports double-clicks[[|| in `input$<outputId>_dblclick`]]. Enter opens a selected element. |
+| `click` | Reports a click[[|| to Shiny in `input$<outputId>_click`|| to Shiny in `input.<id>_click()`]]: the part of the chart (`"genes"`, `"labels"`, `"links"`, `"scale"`, `"clusterTitle"`, ...), its cluster and the data of the clicked gene, link or legend group. |
+| `select` | A click selects a gene, label, coordinate, legend label or marker, the scale, or the title or subtitle of a cluster title, footer or label, and outlines it. Shift-, Ctrl- or Cmd-click and a box drawn on empty space select several. A click elsewhere or Escape ends the selection.[[|| Reported in `input$<outputId>_select` (the element selected last) and `input$<outputId>_selection` (all of them).|| Reported in `input.<id>_select()` (the element selected last) and `input.<id>_selection()` (all of them).]] |
+| `drag` | Elements can be moved with the mouse and the arrow keys, and moves undone. See [Moving elements](#moving-elements).[[|| Reported in `input$<outputId>_drag` and `input$<outputId>_moves`.|| Reported in `input.<id>_drag()` and `input.<id>_moves()`.]] |
+| `zoom` | Reports the window of the zoom slider[[|| in `input$<outputId>_zoom`|| in `input.<id>_zoom()`]]. See [Zoom](#zoom). |
+| `dblclick` | Reports double-clicks[[|| in `input$<outputId>_dblclick`|| in `input.<id>_dblclick()`]]. Enter opens a selected element. |
 | `highlight` | Outlines the part of the chart under the mouse. |
-| [[`legendClick`||`legend_click`]] | Whether clicks on the legend are reported. Hiding and showing groups in the legend always works. |
+| [[`legendClick`||`legend_click`||`legend_click`]] | Whether clicks on the legend are reported. Hiding and showing groups in the legend always works. |
 | `rendered` | Reports each finished draw. |
 
 <div class="lang-r">
@@ -264,6 +349,48 @@ shinyApp(ui = ui, server = server)
 ```
 
 Selection also works outside Shiny, as a `geneviewer:select` event in the browser.
+
+</div>
+
+<div class="lang-py">
+
+The payload of a selected element also has `style`: how it is drawn (its colour, size, font, ...), for example to show the current values in an editor. In the app below a click on a gene shows its row of the data. Protein sequences (the `translation` and `sequence` columns) are left out of it, as they are not sent to the browser unless the chart shows them; `click["data"]["rowID"]` finds them in the data.
+
+```python
+import json
+
+from shiny import App, render, ui
+
+from geneviewer import GC, datasets
+from geneviewer.shiny import output_geneviewer, render_geneviewer
+
+ophA_clusters = datasets.load("ophA_clusters")
+
+app_ui = ui.page_fluid(
+    output_geneviewer("chart", height="300px"),
+    ui.output_code("clicked"),
+)
+
+
+def server(input, output, session):
+    @render_geneviewer
+    def chart():
+        return (
+            GC(ophA_clusters, cluster="cluster", group="class")
+            .labels("name")
+            .events(click=True, select=True, highlight=True)
+        )
+
+    @render.code
+    def clicked():
+        click = input.chart_click()
+        if not click or click["component"] != "genes":
+            return "Click a gene"
+        return json.dumps(click["data"], indent=1)
+
+
+app = App(app_ui, server)
+```
 
 </div>
 
@@ -303,21 +430,21 @@ Click a gene, label or cluster title in this chart to select it:
 
 ## Moving elements
 
-With [[`events: { drag: true }`||`GC_events(drag = TRUE)`]] you can arrange a chart with the mouse, for example to move a label away from a gene or the legend to an empty corner before saving a figure. Gene labels, the chart title and subtitle, the titles, footers and labels of the clusters, the scale axis and scale bar (each as a whole) and the labels and markers of the legend (each on its own) can be moved. Try it in the chart below:
+With [[`events: { drag: true }`||`GC_events(drag = TRUE)`||`.events(drag=True)`]] you can arrange a chart with the mouse, for example to move a label away from a gene or the legend to an empty corner before saving a figure. Gene labels, the chart title and subtitle, the titles, footers and labels of the clusters, the scale axis and scale bar (each as a whole) and the labels and markers of the legend (each on its own) can be moved. Try it in the chart below:
 
 - **Drag** an element to move it. A press without moving is still a click.
 - **Shift-, Ctrl- or Cmd-click** adds an element to the selection, or takes it out again. **Drag on empty space** to draw a box: the elements entirely inside it are selected, such as all items of the legend. Dragging one of the selected elements moves them all.
 - **Arrow keys** move the selected elements by a pixel, or 10 pixels with Shift.
-- **Undo, redo and reset** appear next to the download icon once something has moved. Reset moves everything back to where it was first drawn. After clicking the chart, Ctrl+Z (Cmd+Z on a Mac) undoes and Ctrl+Shift+Z or Ctrl+Y redoes[[, as do `chart.undo()` and `chart.redo()`||]].
+- **Undo, redo and reset** appear next to the download icon once something has moved. Reset moves everything back to where it was first drawn. After clicking the chart, Ctrl+Z (Cmd+Z on a Mac) undoes and Ctrl+Shift+Z or Ctrl+Y redoes[[, as do `chart.undo()` and `chart.redo()`||||]].
 - **Escape** cancels a drag, or ends the selection.
 
 @chart guide-moving-elements
 
-Moved elements are part of the saved SVG and PNG. A move is kept until the page is loaded again. To keep it [[in the spec||in the chart]], give its offset in pixels, `moveX` (right) and `moveY` (down), [[in `elementStyle`||to `GC_element_style()`]]. Elements are identified as they are for [styling](#individual-items): a gene label by its row, a cluster title, footer or label by its cluster and part, the scale and scale bar by their cluster, and a legend label or marker by its group and part.
+Moved elements are part of the saved SVG and PNG. A move is kept until the page is loaded again. To keep it [[in the spec||in the chart||in the chart]], give its offset in pixels, `moveX` (right) and `moveY` (down), [[in `elementStyle`||to `GC_element_style()`||to `.element_style()`]]. Elements are identified as they are for [styling](#individual-items): a gene label by its row, a cluster title, footer or label by its cluster and part, the scale and scale bar by their cluster, and a legend label or marker by its group and part.
 
 @chart guide-moving-elements-2
 
-[[The `drag` event reports||In Shiny, `input$<outputId>_drag` reports]] each move of one element, with its new `position` (`moveX` and `moveY`) and the `action` (`"drag"`, `"nudge"`, `"undo"` or `"redo"`). A move of several elements at once, such as a reset, is reported once by [[`moves`||`input$<outputId>_moves`]], with the `action` and a list of `moves`. Store these and add them to [[`elementStyle`||`GC_element_style()`]] to keep the moves when the chart is drawn again.
+[[The `drag` event reports||In Shiny, `input$<outputId>_drag` reports||In Shiny, `input.<id>_drag()` reports]] each move of one element, with its new `position` (`moveX` and `moveY`) and the `action` (`"drag"`, `"nudge"`, `"undo"` or `"redo"`). A move of several elements at once, such as a reset, is reported once by [[`moves`||`input$<outputId>_moves`||`input.<id>_moves()`]], with the `action` and a list of `moves`. Store these and add them to [[`elementStyle`||`GC_element_style()`||`.element_style()`]] to keep the moves when the chart is drawn again.
 
 <div class="lang-r">
 
@@ -361,19 +488,75 @@ shinyApp(ui = ui, server = server)
 
 </div>
 
+<div class="lang-py">
+
+```python
+from shiny import App, reactive, ui
+
+from geneviewer import GC, datasets
+from geneviewer.shiny import output_geneviewer, render_geneviewer
+
+ophA_clusters = datasets.load("ophA_clusters")
+
+app_ui = ui.page_fluid(
+    ui.input_checkbox("italic", "Italic labels"),
+    output_geneviewer("chart", height="300px"),
+)
+
+
+def server(input, output, session):
+    # The position of each moved label, by its row
+    positions = reactive.value({})
+
+    def keep(moves):
+        kept = dict(positions())
+        for move in moves:
+            if move["component"] == "labels":
+                kept[move["data"]["rowID"]] = move["position"]
+        positions.set(kept)
+
+    @reactive.effect
+    @reactive.event(input.chart_drag)
+    def _():
+        keep([input.chart_drag()])
+
+    @reactive.effect
+    @reactive.event(input.chart_moves)
+    def _():
+        keep(input.chart_moves()["moves"])
+
+    @render_geneviewer
+    def chart():
+        chart = (
+            GC(ophA_clusters, cluster="cluster", group="class")
+            .labels("name", font_style="italic" if input.italic() else "normal")
+            .events(select=True, drag=True)
+        )
+        for row, position in positions().items():
+            chart = chart.element_style(
+                "labels", row_id=row, move_x=position["moveX"], move_y=position["moveY"]
+            )
+        return chart
+
+
+app = App(app_ui, server)
+```
+
+</div>
+
 ## Toolbar
 
-The undo, redo and reset icons, the reset zoom icon of the zoom slider and the save button make up the toolbar. [[The `toolbar` key||`GC_toolbar()`]] sets when it shows (`"hover"`, `"always"`, for example for touch screens, or `"never"`), its corner, which buttons it has, the size and colours of its icons and the look of its tooltips. The icons are [Font Awesome](https://fontawesome.com/search?ic=free) icons, by name, such as `"camera"`, or by their classes for another style, such as `"fa-regular fa-floppy-disk"`.
+The undo, redo and reset icons, the reset zoom icon of the zoom slider and the save button make up the toolbar. [[The `toolbar` key||`GC_toolbar()`||`.toolbar()`]] sets when it shows (`"hover"`, `"always"`, for example for touch screens, or `"never"`), its corner, which buttons it has, the size and colours of its icons and the look of its tooltips. The icons are [Font Awesome](https://fontawesome.com/search?ic=free) icons, by name, such as `"camera"`, or by their classes for another style, such as `"fa-regular fa-floppy-disk"`.
 
 @chart guide-toolbar
 
-The built-in themes style the toolbar to fit, and a theme of your own can set it as a component: [[`theme: { toolbar: { color: "grey", hoverColor: "black" } }`||`GC_theme(toolbar = list(color = "grey", hoverColor = "black"))`]]. [[The `toolbar` key||`GC_toolbar()`]] takes precedence over the theme.
+The built-in themes style the toolbar to fit, and a theme of your own can set it as a component: [[`theme: { toolbar: { color: "grey", hoverColor: "black" } }`||`GC_theme(toolbar = list(color = "grey", hoverColor = "black"))`||`.theme(toolbar={"color": "grey", "hoverColor": "black"})`]]. [[The `toolbar` key||`GC_toolbar()`||`.toolbar()`]] takes precedence over the theme.
 
 ## Selections
 
 ### Specific clusters
 
-Options apply to all clusters of the chart by default. [[A part can also be an array of entries, and an entry with `clusters` applies only to those clusters.||Most `GC_` functions have a `cluster` argument that applies them only to those clusters.]] Name a cluster or give its number, starting at 1.
+Options apply to all clusters of the chart by default. [[A part can also be an array of entries, and an entry with `clusters` applies only to those clusters.||Most `GC_` functions have a `cluster` argument that applies them only to those clusters.||Most methods have a `cluster` argument that applies them only to those clusters.]] Name a cluster or give its number, starting at 1.
 
 Here the labels of the first cluster are moved below the genes:
 
@@ -387,7 +570,7 @@ Here the 3rd label of the ophA cluster is red and bold. In cluster 2 the 5th lab
 
 @chart guide-individual-items
 
-[[`elementStyle`||`GC_element_style()`]] styles one element at a time, without the index: a gene, label or coordinate by its row in the data ([[`rowID`||`row_id`, the `rowID` column of the chart]]), or the title or subtitle of a cluster title, footer or label by its `cluster` and `part`. Its options add to the other styles of the chart. Legend labels and markers are styled by their `group` and `part`. These are the same names the selection events report, so an editor built on them can record its changes here.
+[[`elementStyle`||`GC_element_style()`||`.element_style()`]] styles one element at a time, without the index: a gene, label or coordinate by its row in the data ([[`rowID`||`row_id`, the `rowID` column of the chart||`row_id`, the `rowID` column of the chart]]), or the title or subtitle of a cluster title, footer or label by its `cluster` and `part`. Its options add to the other styles of the chart. Legend labels and markers are styled by their `group` and `part`. These are the same names the selection events report, so an editor built on them can record its changes here.
 
 @chart guide-individual-items-2
 
@@ -395,43 +578,43 @@ Here the 3rd label of the ophA cluster is red and bold. In cluster 2 the 5th lab
 
 ### Cluster
 
-[[The `cluster` key||`GC_cluster()`]] styles clusters and sets their margins. Here each cluster has its own background, and the left and right margins are 25px. The margins of the title and legend do not change. To change those too, use [[[`grid`](#grid)||[`GC_grid()`](#grid)]].
+[[The `cluster` key||`GC_cluster()`||`.cluster()`]] styles clusters and sets their margins. Here each cluster has its own background, and the left and right margins are 25px. The margins of the title and legend do not change. To change those too, use [[[`grid`](#grid)||[`GC_grid()`](#grid)||[`.grid()`](#grid)]].
 
 @chart guide-cluster
 
 ### Separate forward and reverse strands
 
-Forward and reverse strands can go on separate tracks[[|| with `separate_strands`]]. [[`strandSpacing`||`strand_spacing`]] sets the space between them.
+Forward and reverse strands can go on separate tracks[[|| with `separate_strands`|| with `separate_strands`]]. [[`strandSpacing`||`strand_spacing`||`strand_spacing`]] sets the space between them.
 
 @chart guide-separation-of-forward-and-reverse-strands
 
 ### Prevent gene overlap
 
-With [[`preventGeneOverlap: true`||`prevent_gene_overlap = TRUE`]], genes that overlap go on separate tracks, below each other. A gene goes on the first track where it overlaps no gene placed before it, and [[`overlapSpacing`||`overlap_spacing`]] sets the space between the tracks. Here the overlapping HOX genes are 30 pixels apart. Setting both [[`separateStrands`||`separate_strands`]] and [[`preventGeneOverlap`||`prevent_gene_overlap`]] is not supported at the moment.
+With [[`preventGeneOverlap: true`||`prevent_gene_overlap = TRUE`||`prevent_gene_overlap=True`]], genes that overlap go on separate tracks, below each other. A gene goes on the first track where it overlaps no gene placed before it, and [[`overlapSpacing`||`overlap_spacing`||`overlap_spacing`]] sets the space between the tracks. Here the overlapping HOX genes are 30 pixels apart. Setting both [[`separateStrands`||`separate_strands`||`separate_strands`]] and [[`preventGeneOverlap`||`prevent_gene_overlap`||`prevent_gene_overlap`]] is not supported at the moment.
 
 @chart guide-prevent-gene-overlap
 
-With [[`preventGeneOverlap: "nested"`||`prevent_gene_overlap = "nested"`]] only the genes that lie inside another gene, such as an ORF in another reading frame, go on the tracks below. All other genes stay on the first track, also where they overlap. [[`styleBy: "geneTrack"`||`style_by = "geneTrack"`]] styles the genes of each track, here to draw the nested ORFs of SARS-CoV-2 smaller.
+With [[`preventGeneOverlap: "nested"`||`prevent_gene_overlap = "nested"`||`prevent_gene_overlap="nested"`]] only the genes that lie inside another gene, such as an ORF in another reading frame, go on the tracks below. All other genes stay on the first track, also where they overlap. [[`styleBy: "geneTrack"`||`style_by = "geneTrack"`||`style_by="geneTrack"`]] styles the genes of each track, here to draw the nested ORFs of SARS-CoV-2 smaller.
 
 @chart guide-prevent-gene-overlap-2
 
 ### Grid
 
-[[The `grid` key||`GC_grid()`]] sets the grid of the chart or of specific clusters. Here the top and bottom margins are larger, and the left and right margins go from the default 50px to 25px.
+[[The `grid` key||`GC_grid()`||`.grid()`]] sets the grid of the chart or of specific clusters. Here the top and bottom margins are larger, and the left and right margins go from the default 50px to 25px.
 
 @chart guide-grid
 
-Clusters can be side by side with [[`direction: "row"`||`direction = "row"`]] and a `width` for each cluster.
+Clusters can be side by side with [[`direction: "row"`||`direction = "row"`||`direction="row"`]] and a `width` for each cluster.
 
 @chart guide-grid-2
 
 ## Genes
 
-[[The `genes` key||`GC_genes()`]] styles the genes and takes any CSS style. The colours come from [[`fields.group`||the `group` of `GC_chart()`]]. To change them, use [[the [`color` key](#colors)||[`GC_color()`](#colors)]], which changes the genes and the legend together.
+[[The `genes` key||`GC_genes()`||`.genes()`]] styles the genes and takes any CSS style. The colours come from [[`fields.group`||the `group` of `GC_chart()`||the `group` of `GC()`]]. To change them, use [[the [`color` key](#colors)||[`GC_color()`](#colors)||[`.color()`](#colors)]], which changes the genes and the legend together.
 
 @chart guide-genes
 
-Genes are arrows by default. Set `marker` to `arrow`, `boxarrow`, `box`, `cbox` or `rbox`, and [[`markerSize`||`marker_size`]] to `small`, `medium` (the default) or `large`.
+Genes are arrows by default. Set `marker` to `arrow`, `boxarrow`, `box`, `cbox` or `rbox`, and [[`markerSize`||`marker_size`||`marker_size`]] to `small`, `medium` (the default) or `large`.
 
 @chart guide-genes-2 nocode
 @chart guide-genes-3 nocode
@@ -439,7 +622,7 @@ Genes are arrows by default. Set `marker` to `arrow`, `boxarrow`, `box`, `cbox` 
 @chart guide-genes-5 nocode
 @chart guide-genes-6
 
-For finer control, `markerHeight` overrides [[`markerSize`||`marker_size`]], and `x` and `y` move the markers. The `arrow` and `boxarrow` markers also have `arrowheadWidth` and `arrowheadHeight`.
+For finer control, `markerHeight` overrides [[`markerSize`||`marker_size`||`marker_size`]], and `x` and `y` move the markers. The `arrow` and `boxarrow` markers also have `arrowheadWidth` and `arrowheadHeight`.
 
 @chart guide-genes-7
 
@@ -449,13 +632,13 @@ For finer control, `markerHeight` overrides [[`markerSize`||`marker_size`]], and
 
 ## Gene alignment
 
-[[The `align` key||`GC_align()`]] aligns one gene across clusters: each cluster's scale is set so the gene is at the same place in every cluster. Name the column with the identifiers in [[`idColumn`||`id_column`]], and the gene in `id`. The identifier must be the same across clusters and unique within each.
+[[The `align` key||`GC_align()`||`.align()`]] aligns one gene across clusters: each cluster's scale is set so the gene is at the same place in every cluster. Name the column with the identifiers in [[`idColumn`||`id_column`||`id_column`]], and the gene in `id`. The identifier must be the same across clusters and unique within each.
 
 @chart guide-gene-alignment
 
 ## Transcripts
 
-[[The `transcript` key||`GC_transcript()`]] draws transcripts. It needs a column with an ID for each transcript and a `type` column that says whether the feature is a UTR or an exon. A `strand` column sets the direction. Introns are worked out from the exon positions.
+[[The `transcript` key||`GC_transcript()`||`.transcript()`]] draws transcripts. It needs a column with an ID for each transcript and a `type` column that says whether the feature is a UTR or an exon. A `strand` column sets the direction. Introns are worked out from the exon positions.
 
 @chart guide-transcripts
 
@@ -473,11 +656,11 @@ Introns, exons, UTRs and labels are styled with `styleIntrons`, `styleExons`, `s
 
 ## Links
 
-[[The `links` key connects genes or regions of different clusters. Its `data` is a table with the positions of both ends and their clusters (`start1`, `end1`, `cluster1`, `start2`, `end2`, `cluster2`). The JavaScript library draws the links you give it and does not work out which genes match: in R, `GC_links()` makes this table from a column of the genes.||`GC_links()` connects genes of different clusters. It makes the links from a column of the genes: `group` gives links between all pairs of values in that column.]]
+[[The `links` key connects genes or regions of different clusters. Its `data` is a table with the positions of both ends and their clusters (`start1`, `end1`, `cluster1`, `start2`, `end2`, `cluster2`). The JavaScript library draws the links you give it and does not work out which genes match: in R, `GC_links()` makes this table from a column of the genes.||`GC_links()` connects genes of different clusters. It makes the links from a column of the genes: `group` gives links between all pairs of values in that column.||`.links()` connects genes of different clusters. It makes the links from a column of the genes: `group` gives links between all pairs of values in that column.]]
 
 @chart guide-links
 
-[[A table can link only the genes you want:||`value1` and `value2` link only the genes you want:]]
+[[A table can link only the genes you want:||`value1` and `value2` link only the genes you want:||`value1` and `value2` link only the genes you want:]]
 
 @chart guide-links-2
 
@@ -485,17 +668,17 @@ An `identity` or `similarity` column sets the colour intensity of the links when
 
 @chart guide-links-3
 
-Links can also join any regions, rather than genes[[||, from a table given as `data`]]. They run from nearly white at a measure of `vmin` to the full colour at `vmax` (0 and 100 by default), which are also the ends of the colour bar. Setting `vmin` to the lowest measure spreads the colours over the data. Measures below `vmin` or above `vmax` get the colour of that end.
+Links can also join any regions, rather than genes[[||, from a table given as `data`||, from a table given as `data`]]. They run from nearly white at a measure of `vmin` to the full colour at `vmax` (0 and 100 by default), which are also the ends of the colour bar. Setting `vmin` to the lowest measure spreads the colours over the data. Measures below `vmin` or above `vmax` get the colour of that end.
 
 @chart guide-links-4
 
-With [[`labelPosition: "link"`||`label_position = "link"`]] the measure is written in the middle of each link where it fits. The `position` of `colorBarOptions` moves the colour bar to another corner or, with `"legend"`, into the legend.
+With [[`labelPosition: "link"`||`label_position = "link"`||`label_position="link"`]] the measure is written in the middle of each link where it fits. The `position` of `colorBarOptions` moves the colour bar to another corner or, with `"legend"`, into the legend.
 
 @chart guide-links-5
 
 ## Sequence
 
-[[The `sequence` key||`GC_sequence()`]] styles the line the genes sit on, with [[`lineStyle`||`sequenceStyle`]], and its scale break markers, with `markerStyle`.
+[[The `sequence` key||`GC_sequence()`||`.sequence()`]] styles the line the genes sit on, with [[`lineStyle`||`sequenceStyle`||`sequence_style`]], and its scale break markers, with `markerStyle`.
 
 @chart guide-sequence
 
@@ -505,7 +688,7 @@ Each cluster can have a title, gene labels, a cluster label and a footer.
 
 @chart guide-labels
 
-Use `x`, `y` and `align` to place labels. Here [[`labels` has two entries||`GC_labels()` is used twice]]: the first sets labels for all clusters, and the second moves the 4th and 8th label of cluster 2 so they do not overlap. The index starts at 0.
+Use `x`, `y` and `align` to place labels. Here [[`labels` has two entries||`GC_labels()` is used twice||`.labels()` is used twice]]: the first sets labels for all clusters, and the second moves the 4th and 8th label of cluster 2 so they do not overlap. The index starts at 0.
 
 @chart guide-labels-2
 
@@ -513,57 +696,57 @@ Use `x`, `y` and `align` to place labels. Here [[`labels` has two entries||`GC_l
 
 @chart guide-labels-3
 
-Labels that overlap another label are turned by default. [[`adjustLabels: "hide"`||`adjustLabels = "hide"`]] hides them instead, until there is room for them, such as when zoomed in.
+Labels that overlap another label are turned by default. [[`adjustLabels: "hide"`||`adjustLabels = "hide"`||`adjust_labels="hide"`]] hides them instead, until there is room for them, such as when zoomed in.
 
 ### Spread labels
 
-[[`adjustLabels: "spread"`||`adjustLabels = "spread"`]] puts the labels on one line below the lowest gene, as in gene order figures. Labels that would overlap are moved apart, and a line goes from each label to its gene.
+[[`adjustLabels: "spread"`||`adjustLabels = "spread"`||`adjust_labels="spread"`]] puts the labels on one line below the lowest gene, as in gene order figures. Labels that would overlap are moved apart, and a line goes from each label to its gene.
 
 @chart guide-spread-labels
 
-[[`spreadPosition: "top"`||`spreadPosition = "top"`]] puts the labels above the highest gene instead. `leaderLine` sets the distance from the genes to the labels (`length`, in pixels, default 20) and the style of the lines, and [[`leaderLine: false`||`leaderLine = FALSE`]] spreads the labels without lines.
+[[`spreadPosition: "top"`||`spreadPosition = "top"`||`spread_position="top"`]] puts the labels above the highest gene instead. `leaderLine` sets the distance from the genes to the labels (`length`, in pixels, default 20) and the style of the lines, and [[`leaderLine: false`||`leaderLine = FALSE`||`leader_line=False`]] spreads the labels without lines.
 
 @chart guide-spread-labels-2
 
 ## Annotations
 
-[[The `annotation` key||`GC_annotation()`]] adds annotations to clusters: `text`, `textMarker`, `line`, `arrow`, `symbol`, `rectangle`, `arc`, `promoter` and `terminator`. Several annotations of one type can be placed with [[arrays||lists]] of values. With [[`trackMouse: {}`||`GC_trackMouse()`]] the chart shows the position under the mouse, which makes it easier to find `x` and `y`.
+[[The `annotation` key||`GC_annotation()`||`.annotation()`]] adds annotations to clusters: `text`, `textMarker`, `line`, `arrow`, `symbol`, `rectangle`, `arc`, `promoter` and `terminator`. Several annotations of one type can be placed with [[arrays||lists||dicts]] of values. With [[`trackMouse: {}`||`GC_trackMouse()`||`.track_mouse()`]] the chart shows the position under the mouse, which makes it easier to find `x` and `y`.
 
 @chart guide-annotations
 
 ### Text
 
-All the options of a text annotation. `text`, `x` and `y` can also be [[arrays||lists]].
+All the options of a text annotation. `text`, `x` and `y` can also be [[arrays||lists||dicts]].
 
 @chart guide-text
 
 ### Text marker
 
-All the options of a text marker. All but the styles can also be [[arrays||lists]]. `x1` and `x2` are unset by default, and `position` is used for the horizontal placement.
+All the options of a text marker. All but the styles can also be [[arrays||lists||dicts]]. `x1` and `x2` are unset by default, and `position` is used for the horizontal placement.
 
 @chart guide-text-marker
 
 ### Promoter and terminator
 
-All the options of a promoter, or a terminator with [[`type: "terminator"`||`type = "terminator"`]]. All but the styles can also be [[arrays||lists]].
+All the options of a promoter, or a terminator with [[`type: "terminator"`||`type = "terminator"`||`type="terminator"`]]. All but the styles can also be [[arrays||lists||dicts]].
 
 @chart guide-promoter-terminator
 
 ### Symbol
 
-All the options of a symbol: `circle`, `cross`, `diamond`, `square`, `star`, `triangle` or `wye`. All but the styles can also be [[arrays||lists]].
+All the options of a symbol: `circle`, `cross`, `diamond`, `square`, `star`, `triangle` or `wye`. All but the styles can also be [[arrays||lists||dicts]].
 
 @chart guide-symbol
 
 ### Arrow
 
-All the options of an arrow. All but the styles can also be [[arrays||lists]].
+All the options of an arrow. All but the styles can also be [[arrays||lists||dicts]].
 
 @chart guide-arrow
 
 ### Line
 
-All the options of a line. All but the styles can also be [[arrays||lists]].
+All the options of a line. All but the styles can also be [[arrays||lists||dicts]].
 
 @chart guide-line
 
@@ -575,13 +758,13 @@ All the options of arcs, here for the junctions of a transcript.
 
 ### Rectangle
 
-All the options of a rectangle. `rotation` can also be [[an array||a list]].
+All the options of a rectangle. `rotation` can also be [[an array||a list||a dict]].
 
 @chart guide-square
 
 ## Colors
 
-[[The `color` key||`GC_color()`]] sets the colours of the legend and genes, with `colorScheme` or `customColors`.
+[[The `color` key||`GC_color()`||`.color()`]] sets the colours of the legend and genes, with `colorScheme` or `customColors`.
 
 ### colorScheme
 
@@ -631,19 +814,19 @@ A color scheme by name, such as `"schemeCategory10"` or `"schemeAccent"` from D3
 
 ### customColors
 
-`customColors` sets the colour of each group: [[an array of colours, or an object from group to colour||a vector of colours, or a named list from group to colour]].
+`customColors` sets the colour of each group: [[an array of colours, or an object from group to colour||a vector of colours, or a named list from group to colour||a list of colours, or a dict from group to colour]].
 
-[[An array of colours:||A vector of colours:]]
+[[An array of colours:||A vector of colours:||A vector of colours:]]
 
 @chart guide-customcolors
 
-[[An object from group to colour:||A named list from group to colour:]]
+[[An object from group to colour:||A named list from group to colour:||A named list from group to colour:]]
 
 @chart guide-customcolors-2
 
 ## Patterns
 
-Journals sometimes ask for figures in black and white. [[The `pattern` key||`GC_pattern()`]] fills the genes, exons and legend markers with a pattern for each group instead of a colour. By default each group gets the next pattern from a fixed list, in black on a white background.
+Journals sometimes ask for figures in black and white. [[The `pattern` key||`GC_pattern()`||`.pattern()`]] fills the genes, exons and legend markers with a pattern for each group instead of a colour. By default each group gets the next pattern from a fixed list, in black on a white background.
 
 @chart guide-patterns
 
@@ -651,25 +834,25 @@ There are 16 patterns. Without `patterns`, the groups get them in the order show
 
 @chart guide-patterns-2
 
-Use `patterns` to choose them: [[an array||a vector]] is recycled over the groups, and [[an object||a named list]] sets the pattern for each group.
+Use `patterns` to choose them: [[an array||a vector||a list]] is recycled over the groups, and [[an object||a named list||a dict]] sets the pattern for each group.
 
 @chart guide-patterns-3
 
-With many groups, combine the patterns with grey backgrounds. The `background` [[array||vector]] is recycled in the same way, so 3 patterns and 2 greys give 6 different fills. `color` sets the colour of the lines and dots, `size` the width of one pattern tile and `strokeWidth` the width of the lines.
+With many groups, combine the patterns with grey backgrounds. The `background` [[array||vector||list]] is recycled in the same way, so 3 patterns and 2 greys give 6 different fills. `color` sets the colour of the lines and dots, `size` the width of one pattern tile and `strokeWidth` the width of the lines.
 
 @chart guide-patterns-4
 
-Set [[`background: null`||`background = NULL`]] to draw the patterns on top of the gene colours. Each group then has both a colour and a pattern, which also helps readers who cannot tell some colours apart.
+Set [[`background: null`||`background = NULL`||`background=None`]] to draw the patterns on top of the gene colours. Each group then has both a colour and a pattern, which also helps readers who cannot tell some colours apart.
 
 @chart guide-patterns-5
 
-Like `background`, `color` can be [[an array or an object||a vector or a named list]], so some groups can have white patterns on black. `inverseDots` draws the dots in the background colour on a tile filled with `color`.
+Like `background`, `color` can be [[an array or an object||a vector or a named list||a list or a dict]], so some groups can have white patterns on black. `inverseDots` draws the dots in the background colour on a tile filled with `color`.
 
 @chart guide-patterns-6
 
 ## Themes
 
-[[The `theme` key||`GC_theme()`]] sets the default look of the whole chart at once: fonts, text and line colours, the background, the gene colours and the options of each part. There are 7 built-in themes:
+[[The `theme` key||`GC_theme()`||`.theme()`]] sets the default look of the whole chart at once: fonts, text and line colours, the background, the gene colours and the options of each part. There are 7 built-in themes:
 
 - `"default"`: the default look of geneviewer.
 - `"classic"`: the default theme of ECharts 5.
@@ -684,7 +867,7 @@ Like `background`, `color` can be [[an array or an object||a vector or a named l
 @chart guide-themes-3
 @chart guide-themes-4
 
-A theme only changes how things look. It does not add parts to the chart: a scale still needs [[the `scale` key||`GC_scale()`]] and labels [[the `labels` key||`GC_labels()`]].
+A theme only changes how things look. It does not add parts to the chart: a scale still needs [[the `scale` key||`GC_scale()`||`.scale()`]] and labels [[the `labels` key||`GC_labels()`||`.labels()`]].
 
 Each built-in theme also styles the toolbar. Hover the chart below and drag a label to see the undo icon in the dark theme.
 
@@ -692,11 +875,11 @@ Each built-in theme also styles the toolbar. Hover the chart below and drag a la
 
 ### Global settings
 
-Next to [[`base`||`theme`]], the name of a built-in theme, [[`theme`||`GC_theme()`]] takes settings for all parts: `fontFamily`, `textColor`, `lineColor` (the sequence line, axis, coordinates and scale bar), `background`, `palette` (the gene colours) and `pattern`.
+Next to [[`base`||`theme`||`theme`]], the name of a built-in theme, [[`theme`||`GC_theme()`||`.theme()`]] takes settings for all parts: `fontFamily`, `textColor`, `lineColor` (the sequence line, axis, coordinates and scale bar), `background`, `palette` (the gene colours) and `pattern`.
 
 @chart guide-global-settings
 
-`palette` takes [[an array||a vector]] of colours, the name of a D3 colour scheme (such as `"schemeSet2"`) or the name of a geneviewer palette: `okabeIto`, `classic`, `vivid`, `dark`, `vintage`, `infographic`, `greys` or `blues`. The geneviewer palettes can also be used as the `colorScheme` of [[`genes`, `transcript` and `color`||`GC_genes()`, `GC_transcript()` and `GC_color()`]].
+`palette` takes [[an array||a vector||a list]] of colours, the name of a D3 colour scheme (such as `"schemeSet2"`) or the name of a geneviewer palette: `okabeIto`, `classic`, `vivid`, `dark`, `vintage`, `infographic`, `greys` or `blues`. The geneviewer palettes can also be used as the `colorScheme` of [[`genes`, `transcript` and `color`||`GC_genes()`, `GC_transcript()` and `GC_color()`||`.genes()`, `.transcript()` and `.color()`]].
 
 ### Text size
 
@@ -706,33 +889,33 @@ Next to [[`base`||`theme`]], the name of a built-in theme, [[`theme`||`GC_theme(
 
 ### Component options
 
-Options for a single part are given under its own name, such as [[`labels: { fontSize: "10px" }` or `links: { curve: false }`||`labels = list(fontSize = "10px")` for `GC_labels()` or `links = list(curve = FALSE)` for `GC_links()`]].
+Options for a single part are given under its own name, such as [[`labels: { fontSize: "10px" }` or `links: { curve: false }`||`labels = list(fontSize = "10px")` for `GC_labels()` or `links = list(curve = FALSE)` for `GC_links()`||`labels={"fontSize": "10px"}` for `.labels()` or `links={"curve": False}` for `.links()`]].
 
 @chart guide-component-options
 
-Options set [[on a part||with the other `GC_` functions]] always take precedence over the theme. Below the gene labels stay 14px, although the theme sets them to 10px.
+Options set [[on a part||with the other `GC_` functions||with the other methods]] always take precedence over the theme. Below the gene labels stay 14px, although the theme sets them to 10px.
 
 @chart guide-component-options-2
 
 ## Legend
 
-[[The `legend` key||`GC_legend()`]] shows, hides and styles the legend, which is at the bottom by default. Here it is with all its default settings.
+[[The `legend` key||`GC_legend()`||`.legend()`]] shows, hides and styles the legend, which is at the bottom by default. Here it is with all its default settings.
 
 @chart guide-legend
 
-Here the order, size, position and look of the legend are changed. [[The `color` key||`GC_color()`]] changes the colours of the legend and genes together.
+Here the order, size, position and look of the legend are changed. [[The `color` key||`GC_color()`||`.color()`]] changes the colours of the legend and genes together.
 
 @chart guide-legend-2
 
 ## Scale
 
-[[The `scale` key||`GC_scale()`]] sets the scale of the chart. `padding` adds space at the start and end of the cluster, `hidden` hides the axis, and `y` sets its position (1 at the bottom, 100 at the top).
+[[The `scale` key||`GC_scale()`||`.scale()`]] sets the scale of the chart. `padding` adds space at the start and end of the cluster, `hidden` hides the axis, and `y` sets its position (1 at the bottom, 100 at the top).
 
 @chart guide-scale
 
 ### Automatic scale breaks
 
-[[`autoBreaks`, `autoBreakThreshold` and `breakPadding`||`scale_breaks`, `scale_break_threshold` and `scale_break_padding`]] deal with widely spaced genes. [[`autoBreaks: true`||`scale_breaks = TRUE`]] adds breaks in the scale to avoid long empty stretches. [[`autoBreakThreshold`||`scale_break_threshold`]] is the share of the cluster's range an empty stretch must exceed, and [[`breakPadding`||`scale_break_padding`]] the padding around a break.
+[[`autoBreaks`, `autoBreakThreshold` and `breakPadding`||`scale_breaks`, `scale_break_threshold` and `scale_break_padding`||`scale_breaks`, `scale_break_threshold` and `scale_break_padding`]] deal with widely spaced genes. [[`autoBreaks: true`||`scale_breaks = TRUE`||`scale_breaks=True`]] adds breaks in the scale to avoid long empty stretches. [[`autoBreakThreshold`||`scale_break_threshold`||`scale_break_threshold`]] is the share of the cluster's range an empty stretch must exceed, and [[`breakPadding`||`scale_break_padding`||`scale_break_padding`]] the padding around a break.
 
 Here a break is added where the space between genes exceeds 20% of the cluster's range, with 1% padding on both sides.
 
@@ -746,13 +929,13 @@ By default the scale runs from the lowest to the highest position of the genes. 
 
 ### Reverse scale
 
-[[`reverse: true`||`reverse = TRUE`]] reverses the scale.
+[[`reverse: true`||`reverse = TRUE`||`reverse=True`]] reverses the scale.
 
 @chart guide-reverse-scale
 
 ### Shared genomic scale
 
-[[`axisType: "range"`||`axis_type = "range"`]] gives the clusters one scale, from 0 to the widest span among them, rather than their own genomic coordinates. Some options, such as breaks and a reversed scale, may no longer work on a shared axis.
+[[`axisType: "range"`||`axis_type = "range"`||`axis_type="range"`]] gives the clusters one scale, from 0 to the widest span among them, rather than their own genomic coordinates. Some options, such as breaks and a reversed scale, may no longer work on a shared axis.
 
 @chart guide-shared-genomic-scale
 
@@ -764,11 +947,11 @@ By default the scale runs from the lowest to the highest position of the genes. 
 
 ## Zoom
 
-[[The `zoom` key||`GC_zoom()`]] adds a slider below the clusters to zoom in on part of them. Drag a handle to change the window, drag the window to move it, and click the track to move the window there. Double-click the slider, or use the reset zoom icon in the toolbar, to show everything again. With the keyboard, the arrow keys move a focused handle or the window (Shift: in bigger steps). The slider shows the genes of each cluster in their colours, and genes, labels, links and the axis follow the window. `range` sets the window shown first:
+[[The `zoom` key||`GC_zoom()`||`.zoom()`]] adds a slider below the clusters to zoom in on part of them. Drag a handle to change the window, drag the window to move it, and click the track to move the window there. Double-click the slider, or use the reset zoom icon in the toolbar, to show everything again. With the keyboard, the arrow keys move a focused handle or the window (Shift: in bigger steps). The slider shows the genes of each cluster in their colours, and genes, labels, links and the axis follow the window. `range` sets the window shown first:
 
 @chart guide-zoom
 
-By default every cluster zooms to the same share of its own range, which suits clusters of different genomes. With [[`mode: "absolute"`||`mode = "absolute"`]] the window is in base pairs and every cluster shows the same positions. [[`update: "release"`||`update = "release"`]] draws the chart only when the slider is let go, for large charts, and `height`, `overview`, `color`, `style`, `windowStyle` and `handleStyle` set the look of the slider.
+By default every cluster zooms to the same share of its own range, which suits clusters of different genomes. With [[`mode: "absolute"`||`mode = "absolute"`||`mode="absolute"`]] the window is in base pairs and every cluster shows the same positions. [[`update: "release"`||`update = "release"`||`update="release"`]] draws the chart only when the slider is let go, for large charts, and `height`, `overview`, `color`, `style`, `windowStyle` and `handleStyle` set the look of the slider.
 
 @chart guide-zoom-2
 
@@ -790,13 +973,19 @@ In Shiny, `GC_events(zoom = TRUE)` reports the window in `input$<outputId>_zoom`
 
 </div>
 
+<div class="lang-py">
+
+In Shiny, `.events(zoom=True)` reports the window in `input.<id>_zoom()`, on the first draw and after every change: its `range`, which goes back into `.zoom(range=)`, and the base pairs each cluster shows. [`zoom_to()`](/python/shiny#moving-the-zoom-slider) moves the window from the server.
+
+</div>
+
 ## Coordinates
 
-[[The `coordinates` key||`GC_coordinates()`]] shows the positions of the genes. Coordinates that overlap are moved to the top axis, and `overlapThreshold` (default 20) sets when.
+[[The `coordinates` key||`GC_coordinates()`||`.coordinates()`]] shows the positions of the genes. Coordinates that overlap are moved to the top axis, and `overlapThreshold` (default 20) sets when.
 
 @chart guide-coordinates
 
-`tickStyle` and `textStyle` style the ticks and text. The scale itself is set with [[the `scale` key||`GC_scale()`]]: to reverse it and show only the coordinates, hide it there.
+`tickStyle` and `textStyle` style the ticks and text. The scale itself is set with [[the `scale` key||`GC_scale()`||`.scale()`]]: to reverse it and show only the coordinates, hide it there.
 
 @chart guide-coordinates-2
 
@@ -806,11 +995,11 @@ The start and end of each gene are shown by default. `tickValuesTop` and `tickVa
 
 ## Scale bar
 
-[[The `scaleBar` key||`GC_scaleBar()`]] adds a scale bar. `title` is its label and `unit` its length in base pairs.
+[[The `scaleBar` key||`GC_scaleBar()`||`.scale_bar()`]] adds a scale bar. `title` is its label and `unit` its length in base pairs.
 
 @chart guide-scalebar
 
-`x`, `y` and `labelStyle` place and style the label, and [[`lineStyle` and `tickStyle`||`scaleBarLineStyle` and `scaleBarTickStyle`]] style the bar.
+`x`, `y` and `labelStyle` place and style the label, and [[`lineStyle` and `tickStyle`||`scaleBarLineStyle` and `scaleBarTickStyle`||`scale_bar_line_style` and `scale_bar_tick_style`]] style the bar.
 
 @chart guide-scalebar-2
 
@@ -856,9 +1045,15 @@ webshot2::webshot("temp.html", "output.png", zoom = 1, selector = ".geneviewer")
 
 </div>
 
+<div class="lang-py">
+
+The Python package has no function that writes an image. `chart.to_spec()` gives the chart as a spec, a dict that can be written as JSON; the JavaScript library draws it on any page and saves it from code.
+
+</div>
+
 ## Preparing data
 
-[[The JavaScript library only draws. These steps of the [R package](/r/reference/) work on the data before it reaches the chart, so in JavaScript you pass their results as tables:||The R package also prepares the data for a chart:]]
+[[The JavaScript library only draws. These steps of the [R package](/r/reference/) work on the data before it reaches the chart, so in JavaScript you pass their results as tables:||The R package also prepares the data for a chart:||The Python package also prepares the data for a chart, with the functions of the R package: see [Reading files](/python/reading-files) and [Alignment](/python/alignment). The articles below are for R:]]
 
 - **Reading files:** [GenBank](/r/articles/genbank), [GFF](/r/articles/gff) and [FASTA](/r/articles/fasta).
 - **Protein alignment:** [cluster comparison with protein alignments](/r/articles/protein-alignment).
