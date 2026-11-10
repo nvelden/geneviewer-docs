@@ -77,6 +77,8 @@ export default defineConfig({
   sitemap: { hostname: "https://nvelden.github.io/geneviewer-docs/" },
   head: [
     ["link", { rel: "icon", href: `${base}favicon.ico` }],
+    // Google Search Console: the tag the R package's old website had
+    ["meta", { name: "google-site-verification", content: "yTGAUIDwbj1rCz39OTZSzq5wZAPsbzfL9O_Gc7u6w14" }],
     // Font Awesome, for the charts with custom toolbar icons: the library draws
     // its own icons itself, and a custom icon by name needs it on the page
     ["link", { rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" }],
