@@ -342,6 +342,26 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       await py.close();
     }
 
+    // The R package's old website sends its readers here, page by page
+    // (docs/redirects.json of the R package, made by its
+    // dev/make_site_redirects.R): each of those pages must exist
+    {
+      const file = path.join(__dirname, "..", ".sources", "geneviewer", "docs", "redirects.json");
+      if (!fs.existsSync(file)) {
+        console.log("skip  redirects: the R package has no docs/redirects.json yet");
+      } else {
+        const { site, redirects } = JSON.parse(fs.readFileSync(file, "utf8"));
+        const gone = Object.entries(redirects).filter(([, target]) => {
+          const page = target.replace(/[?#].*$/, "");
+          const built = page.endsWith("/") ? path.join(root, page, "index.html") : path.join(root, `${page}.html`);
+          return !fs.existsSync(built);
+        });
+        expect(site === "https://nvelden.github.io/geneviewer-docs" && Object.keys(redirects).length > 60 && gone.length === 0,
+          `redirects: the ${Object.keys(redirects).length} pages of the R package's old site lead to pages of this site` +
+          (gone.length ? ` (not: ${gone.map(([from, to]) => `${from} to ${to}`).join(", ")})` : ""));
+      }
+    }
+
     // Every internal link to a section finds it. Checked in the built HTML:
     // VitePress checks links but not anchors, nor the reference's v-pre HTML
     const htmlFiles = [];
