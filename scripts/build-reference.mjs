@@ -82,11 +82,17 @@ ${optionsTable(entry)}
 }).join("\n\n");
 
 const body = `
-    <h1>API reference</h1>
+    <h1>JavaScript API reference</h1>
     <p class="lead">
-      geneviewer ${version}: <code>newChart()</code>, the chart spec, the
-      chart's methods and events. The spec's options are generated from the
-      JSON Schema in the repository; names may still change until 1.0.
+      The JavaScript library, geneviewer ${version}: <code>newChart()</code>,
+      the chart spec, the chart's methods and events. The spec's options are
+      generated from the JSON Schema in the repository; names may still
+      change until 1.0.
+    </p>
+    <p>
+      The R and Python packages have their own references:
+      <a href="./r/reference/">R reference</a>,
+      <a href="./python/reference/">Python reference</a>.
     </p>
 
     <ul class="toc">

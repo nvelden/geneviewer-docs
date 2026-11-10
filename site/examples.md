@@ -3,7 +3,7 @@ prev:
   text: Getting started
   link: /getting-started
 next:
-  text: API reference
+  text: JavaScript API reference
   link: /api
 ---
 

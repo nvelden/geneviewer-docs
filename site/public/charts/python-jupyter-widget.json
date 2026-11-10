@@ -1,7 +1,7 @@
 {
  "id": "python-jupyter-widget",
  "language": "python",
- "code": "widget = (\n    GC(clusters, cluster=\"cluster\", group=\"class\", height=\"300px\")\n    .labels(\"name\")\n    .zoom()\n    .events(select=True, zoom=True)\n    .widget()\n)\nwidget",
+ "code": "widget = (\n    GC(clusters, cluster=\"cluster\", group=\"class\", height=\"300px\")\n    .labels(\"name\")\n    .zoom()\n    .events(select=True, drag=True, zoom=True)\n    .widget()\n)\nwidget",
  "height": "300px",
  "spec": {
   "version": 1,
@@ -113,6 +113,7 @@
   "zoom": {},
   "events": {
    "select": true,
+   "drag": true,
    "zoom": true
   }
  }

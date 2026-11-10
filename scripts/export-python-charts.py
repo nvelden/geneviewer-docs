@@ -82,7 +82,7 @@ chart("jupyter-widget", """
         GC(clusters, cluster="cluster", group="class", height="300px")
         .labels("name")
         .zoom()
-        .events(select=True, zoom=True)
+        .events(select=True, drag=True, zoom=True)
         .widget()
     )
     widget

@@ -127,7 +127,7 @@ export default defineConfig({
           { text: "What is geneviewer?", link: "/what-is-geneviewer" },
           { text: "Getting started", link: "/getting-started" },
           { text: "Examples", link: "/examples" },
-          { text: "API reference", link: "/api" },
+          { text: "JavaScript API", link: "/api" },
           { text: "Gene Cluster Dashboard", link: dashboard },
         ],
       },

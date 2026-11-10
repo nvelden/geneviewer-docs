@@ -123,3 +123,10 @@ html[data-lang="r"] .lang-js,
 html[data-lang="py"] .lang-js {
   display: none;
 }
+
+/* The JavaScript API reference is for JavaScript: with R or Python chosen, the
+   sidebar and the links below a page leave it out */
+html:is([data-lang="r"], [data-lang="py"]) .VPSidebarItem:has(> .item > a[href$="/api"]),
+html:is([data-lang="r"], [data-lang="py"]) .pager-link[href$="/api"] {
+  display: none;
+}
