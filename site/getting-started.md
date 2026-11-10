@@ -546,7 +546,7 @@ app = App(app_ui, server)
 
 ## Toolbar
 
-The undo, redo and reset icons, the reset zoom icon of the zoom slider and the save button make up the toolbar. [[The `toolbar` key||`GC_toolbar()`||`.toolbar()`]] sets when it shows (`"hover"`, `"always"`, for example for touch screens, or `"never"`), its corner, which buttons it has, the size and colours of its icons and the look of its tooltips. The icons are [Font Awesome](https://fontawesome.com/search?ic=free) icons, by name, such as `"camera"`, or by their classes for another style, such as `"fa-regular fa-floppy-disk"`.
+The undo, redo and reset icons, the reset zoom icon of the zoom slider and the save button make up the toolbar. [[The `toolbar` key||`GC_toolbar()`||`.toolbar()`]] sets when it shows (`"hover"`, `"always"`, for example for touch screens, or `"never"`), its corner, which buttons it has, the size and colours of its icons and the look of its tooltips. The icons are [Font Awesome](https://fontawesome.com/search?ic=free) icons, by name, such as `"camera"`, or by their classes for another style, such as `"fa-regular fa-floppy-disk"`. The default icons need nothing. [[Custom icons need Font Awesome on the page, for example `<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css">`.||For custom icons, the R package adds Font Awesome to the page.||Custom icons need Font Awesome on the page: see [Toolbar icons](/python/shiny#toolbar-icons).]]
 
 @chart guide-toolbar
 

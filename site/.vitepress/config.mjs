@@ -69,6 +69,9 @@ export default defineConfig({
   sitemap: { hostname: "https://nvelden.github.io/geneviewer-docs/" },
   head: [
     ["link", { rel: "icon", href: `${base}favicon.ico` }],
+    // Font Awesome, for the charts with custom toolbar icons: the library draws
+    // its own icons itself, and a custom icon by name needs it on the page
+    ["link", { rel: "stylesheet", href: "https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" }],
     // The language before the page is drawn, so its text does not change on screen.
     // ?lang=r or ?lang=py in a link sets it and is remembered.
     ["script", {}, `(function () {

@@ -197,6 +197,16 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         expect(shown.every((value) => value === true), `${label}: ${shown.length} charts show their Python code` +
           (shown.every((value) => value === true) ? "" : ` (not: ${shown.filter((value) => value !== true).join(", ")})`));
       }
+      if (name === "getting-started") {
+        // Custom toolbar icons are Font Awesome icons: the site loads it, so they show
+        const icon = page.locator('[data-chart="guide-toolbar"] .geneviewer-toolbar i.fa-camera').first();
+        await icon.scrollIntoViewIfNeeded();
+        const drawn = await icon.evaluate(async (node) => {
+          await document.fonts.ready;
+          return { width: node.getBoundingClientRect().width, font: getComputedStyle(node).fontFamily };
+        });
+        expect(drawn.width > 8 && /Font Awesome/.test(drawn.font), `${label}: the custom toolbar icons show (${drawn.width}px, ${drawn.font})`);
+      }
       if (name === "examples") {
         // The sections of the R package's Examples page, all there
         const sections = JSON.parse(fs.readFileSync(path.join(__dirname, "..", "site", ".vitepress", "examples.json"), "utf8"));
