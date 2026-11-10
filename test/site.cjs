@@ -263,6 +263,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       expect(await lang.locator(".gv-nav-links a").first().textContent() === jsVersion, "language: the nav bar shows the JavaScript version");
       expect(await shown("preventGeneOverlap") > 0 && await shown("prevent_gene_overlap") === 0, "language: JavaScript by default");
       expect(await outline("Shiny") === 0, "language: Shiny is not in the outline for JavaScript");
+      expect(await lang.locator('.VPSidebar a[href$="/api"]:visible').count() === 1, "language: the sidebar has the JavaScript API for JavaScript");
       const heading = lang.locator("#zoom");
       await heading.scrollIntoViewIfNeeded();
       const before = (await heading.boundingBox()).y;
@@ -277,6 +278,8 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       const tabsR = await activeTabs();
       expect(tabsR.R > 50 && !tabsR.JavaScript, `language: every code tab shows R (${JSON.stringify(tabsR)})`);
       expect(await outline("Shiny") === 1, "language: Shiny is in the outline for R");
+      const apiLinks = () => lang.locator('.VPSidebar a[href$="/api"]:visible').count();
+      expect(await apiLinks() === 0, "language: the sidebar leaves out the JavaScript API for R");
       await lang.reload({ waitUntil: "networkidle" });
       expect(await shown("prevent_gene_overlap") > 0 && (await activeTabs()).R > 50, "language: remembered after a reload");
       const jsTab = lang.locator(".vp-code-group .tabs label", { hasText: /^JavaScript$/ }).first();
@@ -310,6 +313,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       const tabsPy = await activeTabs();
       expect(tabsPy.Python > 50 && !tabsPy.R && !tabsPy.JavaScript, `language: every code tab shows Python (${JSON.stringify(tabsPy)})`);
       expect(await outline("Shiny") === 1, "language: Shiny is in the outline for Python");
+      expect(await apiLinks() === 0, "language: the sidebar leaves out the JavaScript API for Python");
       expect((await navLinks())[1] === "https://github.com/nvelden/geneviewer-py", "language: the nav bar links to the Python repo for Python");
       await lang.reload({ waitUntil: "networkidle" });
       expect((await activeTabs()).Python > 50, "language: Python is remembered after a reload");
