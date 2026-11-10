@@ -16,3 +16,4 @@ site/.vitepress/python-reference.json
 # Made at build time from the site's charts (scripts/site-gallery.mjs)
 site/public/gallery/
 site/.vitepress/gallery.json
+__pycache__/
