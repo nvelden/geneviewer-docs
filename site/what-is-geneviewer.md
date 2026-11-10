@@ -108,7 +108,7 @@ The same charts can be made in several ways:
 - **JavaScript:** the `geneviewer-js` library, from npm or a CDN.
 - **R:** the [geneviewer package](/r/reference/) builds charts from data frames and from GenBank, GFF, FASTA and BED files. Version 0.3.0, in development, draws them with the JavaScript library. The R code next to each chart on this site is for that version.
 - **In the browser, without code:** the [Gene Cluster Dashboard](https://nvelden.github.io/geneviewer-shinylive/) loads CSV, GenBank and FASTA files and lets you design a chart by point and click.
-- **Python:** the [geneviewer-py package](/python/) builds the same charts from pandas DataFrames and from GenBank, GFF, FASTA and BED files, and shows them in Shiny for Python.
+- **Python:** the [geneviewer-py package](/python/) builds the same charts from pandas DataFrames and from GenBank, GFF, FASTA and BED files, and shows them in Jupyter notebooks and in Shiny for Python.
 
 ## Built on D3
 

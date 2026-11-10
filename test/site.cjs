@@ -76,7 +76,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
     };
 
     const pageNames = ["", "what-is-geneviewer", "getting-started", "examples", ...fs.readdirSync(path.join(__dirname, "..", "articles")).filter((file) => file.endsWith(".Rmd")).map((file) => `r/articles/${file.replace(".Rmd", "")}`),
-      "python/", ...fs.readdirSync(path.join(__dirname, "..", "articles", "python")).filter((file) => file.endsWith(".md")).map((file) => `python/articles/${file.replace(".md", "")}`)];
+      "python/", "python/jupyter", ...fs.readdirSync(path.join(__dirname, "..", "articles", "python")).filter((file) => file.endsWith(".md")).map((file) => `python/articles/${file.replace(".md", "")}`)];
     // One page: its charts draw, its code runs, nothing shows an error. `step`
     // says how far it got, for when a page stops answering
     const checkPage = async (name, step) => {
@@ -199,10 +199,10 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         (wrong.length ? ` (${wrong.slice(0, 8).join("; ")})` : ""));
       await runner.close();
 
-      if (name === "python/") {
+      if (name === "python/" || name === "python/jupyter") {
         // A chart of the Python pages shows the Python that made it
         const shown = await page.evaluate(() => [...document.querySelectorAll(".gv-figure")].map((figure) =>
-          (figure.nextElementSibling?.classList.contains("language-python") && figure.nextElementSibling.textContent.includes("chart = ")) || figure.dataset.chart));
+          (figure.nextElementSibling?.classList.contains("language-python") && figure.nextElementSibling.textContent.includes("GC(")) || figure.dataset.chart));
         expect(shown.every((value) => value === true), `${label}: ${shown.length} charts show their Python code` +
           (shown.every((value) => value === true) ? "" : ` (not: ${shown.filter((value) => value !== true).join(", ")})`));
       }
@@ -325,7 +325,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       const py = await browser.newPage({ viewport: { width: 1200, height: 900 } });
       await py.goto(`${base}python/reference/`, { waitUntil: "networkidle" });
       const names = await py.evaluate(() => [...document.querySelectorAll(".vp-doc td a code")].map((code) => code.textContent));
-      expect(names.length >= 50 && ["GC()", "GC.links()", "read_gbk()", "protein_blast()", "zoom_to()", "datasets.load()", "ophA_clusters"].every((name) => names.includes(name)),
+      expect(names.length >= 50 && ["GC()", "GC.links()", "GC.widget()", "GCWidget()", "GCWidget.zoom_to()", "read_gbk()", "protein_blast()", "zoom_to()", "datasets.load()", "ophA_clusters"].every((name) => names.includes(name)),
         `python reference: lists ${names.length} functions, methods and datasets`);
       // The sidebar has the sections of the R package's
       const sections = (await py.locator(".VPSidebar .VPSidebarItem.level-0 > .item .text").allTextContents()).join();

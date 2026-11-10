@@ -23,11 +23,12 @@ r_reference = Path(sys.argv[4])
 package = repo / "src" / "geneviewer"
 out.mkdir(parents=True, exist_ok=True)
 
-SECTIONS = ("Parameters", "Returns", "Raises", "Examples", "Notes", "See Also")
+SECTIONS = ("Parameters", "Attributes", "Returns", "Raises", "Examples", "Notes", "See Also")
 # Sidebar groups, by the module a name is defined in
 GROUPS = (
     ("Chart", ("chart",)),
     ("Shiny", ("shiny",)),
+    ("Jupyter", ("jupyter",)),
     ("Files", ("readers", "processing")),
     ("Alignment", ("align",)),
     ("Themes", ("theme",)),
@@ -68,9 +69,12 @@ for name in all_names(package / "__init__.py"):
                               f"chart.{item.name}", module, item, False))
     else:
         pages.append((name, f"{name}()", name, module, node, False))
-for sub in ("shiny", "datasets"):
+# geneviewer.jupyter came with 0.2.0: without it, the pages are those of 0.1.0
+for sub in ("shiny", "jupyter", "datasets"):
     path = package / f"{sub}.py"
     path = path if path.exists() else package / sub / "__init__.py"
+    if not path.exists():
+        continue
     for name in all_names(path):
         if name.isupper():
             continue  # a constant, described where it is used
@@ -79,6 +83,13 @@ for sub in ("shiny", "datasets"):
         page = f"datasets-{name}" if sub == "datasets" else name
         pages.append((page, f"{prefix}{name}()", f"{prefix}{name}", sub, node,
                       isinstance(node, ast.ClassDef)))
+        # The methods of the widget; a property is described with its class
+        if sub == "jupyter" and isinstance(node, ast.ClassDef):
+            for item in node.body:
+                if (isinstance(item, ast.FunctionDef) and not item.name.startswith("_")
+                        and not item.decorator_list):
+                    pages.append((f"{name}-{item.name}", f"{name}.{item.name}()",
+                                  f"widget.{item.name}", sub, item, False))
 
 links = {}
 for page, title, call, *_ in pages:
@@ -201,6 +212,10 @@ def page_markdown(page, title, call, module, node, is_class):
     if not doc:
         raise SystemExit(f"{title}: no docstring")
     sections = split_sections(doc, title)
+    # In the pages of the widget, zoom_to is the widget's, not Shiny's
+    shiny_zoom = links.get("zoom_to")
+    if module == "jupyter" and "GCWidget.zoom_to" in links:
+        links["zoom_to"] = links["GCWidget.zoom_to"]
     intro = sections[""]
     summary = intro[0].strip()
     parts = [f"# `{title[:-2]}()`" if not is_class or title != "GC()" else "# `GC()`",
@@ -209,20 +224,26 @@ def page_markdown(page, title, call, module, node, is_class):
     if rest:
         parts.append(rest)
     where = "geneviewer" if module in ("chart", "theme", "processing") or module.startswith(("readers", "align")) else f"geneviewer.{module}"
-    imported = call.split(".")[0] if not call.startswith("chart.") else None
+    imported = call.split(".")[0] if not call.startswith(("chart.", "widget.")) else None
     usage = signature(call, node, is_class)
+
     if imported == "datasets":
         usage = f"from geneviewer import datasets\n\n{usage}"
     elif imported:
         usage = f"from {where} import {imported}\n\n{usage}"
     parts.append(f"## Usage\n\n```python\n{usage}\n```")
-    if re.search(r"[(\s]\w+[,)]", usage.split("\n\n")[-1]) and "Parameters" in sections:
+    function = next((n for n in node.body if isinstance(n, ast.FunctionDef) and n.name == "__init__"), None) if is_class else node
+    if function and "_MISSING" in ast.unparse(function.args) and "Parameters" in sections:
         parts.append("An argument shown without a default is optional too: "
                      "left out, the chart keeps its default.")
     if call.startswith("chart."):
         parts.append("`chart` is a [`GC`](./GC) chart.")
+    if call.startswith("widget."):
+        parts.append("`widget` is a [`GCWidget`](./GCWidget).")
     if "Parameters" in sections:
         parts.append("## Arguments\n\n" + table(sections["Parameters"], "Argument"))
+    if "Attributes" in sections:
+        parts.append("## Attributes\n\n" + table(sections["Attributes"], "Attribute"))
     if "Returns" in sections:
         found = entries(sections["Returns"])
         text = "\n\n".join(f"{inline(head)}: {paragraphs(body)}" if body else inline(head)
@@ -239,6 +260,7 @@ def page_markdown(page, title, call, module, node, is_class):
         parts.append(f"## Examples\n\n```python\n{code}\n```")
     if "See Also" in sections:
         parts.append("## See also\n\n" + paragraphs(sections["See Also"]))
+    links["zoom_to"] = shiny_zoom
     return summary, "\n\n".join(parts) + "\n"
 
 

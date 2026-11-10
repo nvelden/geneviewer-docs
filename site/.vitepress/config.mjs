@@ -46,6 +46,7 @@ const pyItems = (data) => pyPages.filter((entry) => entry.data === data)
 const pySidebar = [
   { text: "Python package", items: [
     { text: "Installation", link: "/getting-started?lang=py#installation" },
+    { text: "Jupyter", link: "/python/jupyter" },
     { text: "Shiny", link: "/python/shiny" },
     { text: "Reference", link: "/python/reference/" },
     { text: "Changelog", link: "/python/news" },

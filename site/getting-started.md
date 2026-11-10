@@ -34,13 +34,13 @@ The R code on this site is for version 0.3.0, which is in development.
 
 <div class="lang-py">
 
-Install **geneviewer-py** from PyPI, with the extra for Shiny for Python, which shows the charts:
+Install **geneviewer-py** from PyPI, with the extra for where the charts are shown: `jupyter` for notebooks, `shiny` for Shiny for Python apps, or both.
 
 ```sh
-pip install "geneviewer-py[shiny]"
+pip install "geneviewer-py[jupyter]"
 ```
 
-The import name is `geneviewer`. The [Python pages](/python/) have more on Shiny, on reading files and on alignment.
+The import name is `geneviewer`. The [Python pages](/python/) have more on notebooks, on Shiny, on reading files and on alignment.
 
 </div>
 
@@ -113,7 +113,7 @@ ophA_cluster = ophA_clusters[ophA_clusters["cluster"] == "ophA"]
 GC(ophA_cluster, group="class", height="150px")
 ```
 
-A chart is shown by a [Shiny for Python](#shiny-py) app.
+In a [Jupyter notebook](/python/jupyter), a cell that ends with the chart draws it. In an app, a [Shiny for Python](#shiny-py) output does.
 
 </div>
 
