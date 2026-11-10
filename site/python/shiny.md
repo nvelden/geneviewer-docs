@@ -1,7 +1,7 @@
 ---
 prev:
-  text: Getting started
-  link: /python/
+  text: Jupyter notebooks
+  link: /python/jupyter
 next:
   text: Reference
   link: /python/reference/

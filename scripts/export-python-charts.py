@@ -77,11 +77,26 @@ chart("transcripts", """
     )
 """)
 
+chart("jupyter-widget", """
+    widget = (
+        GC(clusters, cluster="cluster", group="class", height="300px")
+        .labels("name")
+        .zoom()
+        .events(select=True, zoom=True)
+        .widget()
+    )
+    widget
+""", setup="""
+    from geneviewer import GC, datasets
+    clusters = datasets.load("ophA_clusters")
+""")
+
 for name, (setup, code) in CHARTS.items():
     scope = {}
     exec(setup, scope)
     exec(code, scope)
-    spec = scope["chart"].to_spec()
+    # A snippet for a notebook ends with its widget
+    spec = (scope["chart"] if "chart" in scope else scope["widget"].chart).to_spec()
     shown = code
     height = spec.get("height", "400px")
     record = {"id": f"python-{name}", "language": "python", "code": shown,

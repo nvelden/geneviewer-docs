@@ -1,26 +1,27 @@
 ---
 prev: false
 next:
-  text: Shiny for Python
-  link: /python/shiny
+  text: Jupyter notebooks
+  link: /python/jupyter
 ---
 
 # geneviewer for Python
 
-The Python package builds the same charts as the R package and the JavaScript library, from pandas data frames, and shows them in [Shiny for Python](./shiny). It reads GenBank, GFF, FASTA and BED files and aligns clusters, as the R package does: the articles in the sidebar go through each, from [GenBank files](./articles/genbank) to [a published figure](./articles/published-figure).
+The Python package builds the same charts as the R package and the JavaScript library, from pandas data frames, and shows them in [Jupyter notebooks](./jupyter) and in [Shiny for Python](./shiny). It reads GenBank, GFF, FASTA and BED files and aligns clusters, as the R package does: the articles in the sidebar go through each, from [GenBank files](./articles/genbank) to [a published figure](./articles/published-figure).
 
-These pages describe version 0.1.0.
+These pages describe version 0.2.0.
 
 ## Installation
 
 ```sh
-pip install "geneviewer-py[shiny]"
+pip install "geneviewer-py[jupyter]"
 ```
 
 The distribution is `geneviewer-py` and the import name is `geneviewer`. It needs Python 3.11 or later and pandas. The extras add what a part of the package needs:
 
 | Extra | For |
 | --- | --- |
+| `jupyter` | Charts in Jupyter notebooks |
 | `shiny` | Charts in Shiny for Python |
 | `align` | `protein_blast()`, which aligns with Biopython |
 
@@ -30,7 +31,7 @@ The distribution is `geneviewer-py` and the import name is `geneviewer`. It need
 
 @chart python-first-chart
 
-A chart is shown by a Shiny app. This is the whole app for the chart above; save it as `app.py` and run `shiny run app.py`:
+In a [Jupyter notebook](./jupyter), a cell that ends with the chart draws it. In a Shiny app, an output draws it. This is the whole app for the chart above; save it as `app.py` and run `shiny run app.py`:
 
 ```python
 from shiny import App, ui
