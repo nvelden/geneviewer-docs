@@ -34,7 +34,7 @@ The R code on this site is for version 0.3.0, which is in development.
 
 <div class="lang-py">
 
-The Python package is in development and not yet on PyPI. Once it is, install it with the extra for Shiny for Python, which shows the charts:
+Install **geneviewer-py** from PyPI, with the extra for Shiny for Python, which shows the charts:
 
 ```sh
 pip install "geneviewer-py[shiny]"

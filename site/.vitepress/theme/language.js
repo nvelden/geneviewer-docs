@@ -30,8 +30,8 @@ export const languages = [
     repo: "https://github.com/nvelden/geneviewer-py",
     repoName: "geneviewer-py",
     version: __PY_VERSION__,
-    versionLink: "https://github.com/nvelden/geneviewer-py",
-    versionTitle: `${__PY_VERSION__}, in development`,
+    versionLink: "https://pypi.org/project/geneviewer-py/",
+    versionTitle: `${__PY_VERSION__} on PyPI`,
   },
 ];
 

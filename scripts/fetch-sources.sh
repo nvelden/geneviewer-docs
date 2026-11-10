@@ -21,7 +21,7 @@ fetch() { # repo, ref, paths...
 
 # The Python package's docs to show. Set to the release tag at each Python
 # release, and pyVersion in site/.vitepress/config.mjs to its version.
-PY_REF="m7-8-datasets"
+PY_REF="v0.1.0"
 
 fetch geneviewer "$R_REF" /man/ /NEWS.md
 fetch geneviewer-py "$PY_REF" /README.md /docs/NAMING.md /docs/differences.md \

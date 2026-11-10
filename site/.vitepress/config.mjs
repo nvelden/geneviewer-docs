@@ -9,7 +9,7 @@ const { version } = JSON.parse(readFileSync(new URL("../../node_modules/geneview
 const rVersion = "0.2.0";
 // The Python package's version, shown in the nav bar. Set at each Python
 // release, with PY_REF in scripts/fetch-sources.sh.
-const pyVersion = "0.1.0.dev0";
+const pyVersion = "0.1.0";
 const base = "/geneviewer-docs/";
 const dashboard = "https://nvelden.github.io/geneviewer-shinylive/";
 

@@ -9,7 +9,7 @@ next:
 
 The Python package builds the same charts as the R package and the JavaScript library, from pandas data frames, and shows them in [Shiny for Python](./shiny). It reads GenBank, GFF, FASTA and BED files and aligns clusters, as the R package does.
 
-The package is in development and not yet on PyPI. These pages describe version 0.1.0.
+These pages describe version 0.1.0.
 
 ## Installation
 
