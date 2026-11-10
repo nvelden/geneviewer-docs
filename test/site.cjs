@@ -75,8 +75,11 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       }, { code, size });
     };
 
-    for (const name of ["", "what-is-geneviewer", "getting-started", "examples", ...fs.readdirSync(path.join(__dirname, "..", "articles")).filter((file) => file.endsWith(".Rmd")).map((file) => `r/articles/${file.replace(".Rmd", "")}`),
-      "python/", ...fs.readdirSync(path.join(__dirname, "..", "articles", "python")).filter((file) => file.endsWith(".md")).map((file) => `python/articles/${file.replace(".md", "")}`)]) {
+    const pageNames = ["", "what-is-geneviewer", "getting-started", "examples", ...fs.readdirSync(path.join(__dirname, "..", "articles")).filter((file) => file.endsWith(".Rmd")).map((file) => `r/articles/${file.replace(".Rmd", "")}`),
+      "python/", ...fs.readdirSync(path.join(__dirname, "..", "articles", "python")).filter((file) => file.endsWith(".md")).map((file) => `python/articles/${file.replace(".md", "")}`)];
+    // One page: its charts draw, its code runs, nothing shows an error. `step`
+    // says how far it got, for when a page stops answering
+    const checkPage = async (name, step) => {
       const label = name || "home";
       const page = await browser.newPage({ viewport: { width: 1200, height: 900 } });
       const errors = [];
@@ -84,12 +87,15 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
       await page.goto(base + name, { waitUntil: "networkidle" });
       // The charts draw when they come near the screen
+      step.at = "scrolling past the charts";
       const height = await page.evaluate(() => document.documentElement.scrollHeight);
       for (let y = 0; y < height; y += 800) {
         await page.evaluate((top) => window.scrollTo(0, top), y);
         await page.waitForTimeout(30);
       }
+      step.at = "waiting for the charts to load";
       await page.waitForLoadState("networkidle");
+      step.at = "reading the charts";
       if (name === "") {
         const images = await page.evaluate(() => [...document.querySelectorAll(".gv-grid img")].map((img) => img.getAttribute("src")));
         expect(images.length > 0, `${label}: has a gallery (${images.length} tiles)`);
@@ -106,7 +112,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         expect(scrollers.length === 0 && sideways <= 0, `${label}: only the page scrolls (${scrollers}; ${sideways}px sideways)`);
         expect(errors.length === 0, `${label}: no console errors` + (errors.length ? ": " + errors.join("; ") : ""));
         await page.close();
-        continue;
+        return;
       }
       const charts = await page.evaluate(() => [...document.querySelectorAll(".gv-figure")].map((el) => ({
         id: el.dataset.chart,
@@ -120,6 +126,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         (notDrawn.length ? ` (not: ${notDrawn.map((chart) => `${chart.id} ${chart.error ?? ""}`).join(", ")})` : ""));
 
       // The toolbar shows while the mouse is over the chart
+      step.at = "hovering the first chart";
       const first = page.locator(".gv-chart").first();
       await first.scrollIntoViewIfNeeded();
       await first.hover();
@@ -128,6 +135,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       expect(opacity === "1", `${label}: hovering a chart shows its toolbar (opacity ${opacity})`);
 
       // The colour bar of the links stays clear of the genes
+      step.at = "measuring the colour bars";
       const overBar = await page.evaluate(() => [...document.querySelectorAll(".gv-figure")].flatMap((figure) => {
         const parts = [...figure.querySelectorAll("svg.color-bar rect, svg.color-bar text")]
           .map((part) => part.getBoundingClientRect()).filter((box) => box.width);
@@ -157,6 +165,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       }
 
       // The code of each chart: tabs JavaScript and R, and it runs
+      step.at = "running the code of the charts";
       const blocks = await page.evaluate(() => [...document.querySelectorAll(".gv-figure")].map((figure) => {
         let next = figure.nextElementSibling;
         if (next?.tagName === "DETAILS") next = next.querySelector(".vp-code-group");
@@ -216,6 +225,20 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
       }
       expect(errors.length === 0, `${label}: no console errors` + (errors.length ? ": " + errors.join("; ") : ""));
       await page.close();
+    };
+    // A page that does not answer for three minutes is tried once more: the
+    // check must not wait for it forever (page.evaluate has no timeout)
+    for (const name of pageNames) {
+      let answered = false;
+      for (let attempt = 1; attempt <= 2 && !answered; attempt += 1) {
+        const step = { at: "opening the page" };
+        let timer;
+        const waited = new Promise((resolve) => { timer = setTimeout(() => resolve(false), 180000); });
+        answered = await Promise.race([checkPage(name, step).then(() => true), waited]);
+        clearTimeout(timer);
+        if (!answered) console.log(`slow  ${name || "home"}: no answer for three minutes while ${step.at} (attempt ${attempt})`);
+      }
+      expect(answered, `${name || "home"}: the page answers`);
     }
     // The language switch: the text, the code tabs and "On this page" follow it,
     // and it is remembered
