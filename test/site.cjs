@@ -300,7 +300,7 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
         "language: the footer links to the R repo for R");
       await lang.locator(".gv-language button", { hasText: /^JavaScript$/ }).first().click();
       await lang.goto(`${base}r/reference/`, { waitUntil: "networkidle" });
-      expect((await navLinks())[1] === "https://github.com/nvelden/geneviewer", "language: an R page links to the R repo, also with JavaScript chosen");
+      expect((await navLinks())[1] === "https://github.com/nvelden/geneviewer-js", "language: an R page links to the JavaScript repo when JavaScript is chosen");
       await lang.goto(`${base}getting-started?lang=r#shiny`, { waitUntil: "networkidle" });
       await lang.waitForTimeout(300);
       const shiny = await lang.locator("#shiny").boundingBox();
@@ -324,10 +324,10 @@ const types = { ".html": "text/html", ".js": "text/javascript", ".css": "text/cs
     }
 
     // The Python reference: a page for every public name of the package, and
-    // the nav bar shows the Python package's version and repository there
+    // the nav bar shows the Python package's version and repository there when Python is chosen
     {
       const py = await browser.newPage({ viewport: { width: 1200, height: 900 } });
-      await py.goto(`${base}python/reference/`, { waitUntil: "networkidle" });
+      await py.goto(`${base}python/reference/?lang=py`, { waitUntil: "networkidle" });
       const names = await py.evaluate(() => [...document.querySelectorAll(".vp-doc td a code")].map((code) => code.textContent));
       expect(names.length >= 50 && ["GC()", "GC.links()", "GC.widget()", "GCWidget()", "GCWidget.zoom_to()", "read_gbk()", "protein_blast()", "zoom_to()", "datasets.load()", "ophA_clusters"].every((name) => names.includes(name)),
         `python reference: lists ${names.length} functions, methods and datasets`);

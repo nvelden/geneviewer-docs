@@ -1,9 +1,8 @@
 // The language the guide is read in. The pages hold the text of every language
 // (.lang-js, .lang-r, .lang-py; see "Writing for each language" in the README) and the
 // attribute on <html> shows one. To add a language, add it here and in custom.css.
-// The version and links of the nav bar and footer follow it (usePageLanguage).
+// The version and links of the nav bar and footer follow it on every page (usePageLanguage).
 import { computed, ref } from "vue";
-import { useData } from "vitepress";
 
 export const languages = [
   {
@@ -37,14 +36,9 @@ export const languages = [
 
 export const language = ref("js");
 
-/** The language the links of a page are for: the pages under /r/ and /python/ are about that package, whatever the switch says. */
+/** The language the version and GitHub links are for: the one the switch shows, on every page. */
 export function usePageLanguage() {
-  const { page } = useData();
-  return computed(() => {
-    const path = page.value.relativePath;
-    const id = path.startsWith("python/") ? "py" : path.startsWith("r/") ? "r" : language.value;
-    return languages.find((entry) => entry.id === id);
-  });
+  return computed(() => languages.find((entry) => entry.id === language.value));
 }
 
 // Show the code tab of the language in every chart. Other tabs, such as npm and
