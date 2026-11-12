@@ -12,7 +12,7 @@ The .gbk files can be downloaded directly from [GenBank](https://www.ncbi.nlm.ni
 
 MUMmer needs to be installed on your local machine to execute alignments. For detailed installation instructions, visit the [MUMmer website](https://mummer4.github.io/install/install.html). Once MUMmer is installed, you can perform the alignment using `geneviewer` with the `mummer_alignment()` function. By default it will run the alignment in order of the files in the folder.
 
-**Important** MUMmer requires file paths without spaces.
+**Important** MUMmer cannot use paths with spaces: the names of the files and the folder the alignment runs in (`output_dir`, by default a temporary folder) must be without spaces. The folder of the files may have spaces.
 
 ```python
 import geneviewer as gv

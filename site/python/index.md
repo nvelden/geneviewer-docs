@@ -9,7 +9,7 @@ next:
 
 The Python package builds the same charts as the R package and the JavaScript library, from pandas data frames, and shows them in [Jupyter notebooks](./jupyter) and in [Shiny for Python](./shiny). It reads GenBank, GFF, FASTA and BED files and aligns clusters, as the R package does: the articles in the sidebar go through each, from [GenBank files](./articles/genbank) to [a published figure](./articles/published-figure).
 
-These pages describe version 0.2.0.
+These pages describe version 0.2.1.
 
 ## Installation
 
