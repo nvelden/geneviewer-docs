@@ -21,7 +21,7 @@ fetch() { # repo, ref, paths...
 
 # The Python package's docs to show. Set to the release tag at each Python
 # release, and pyVersion in site/.vitepress/config.mjs to its version.
-PY_REF="v0.2.0"
+PY_REF="v0.2.1"
 
 # docs/redirects.json: the addresses of the R package's old website and where
 # each sends its readers on this site (test/site.cjs checks them)
